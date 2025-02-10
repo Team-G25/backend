@@ -1,9 +1,7 @@
-package com.g25.mailer.User.controller;
+package com.g25.mailer.user.controller;
 
-import com.g25.mailer.User.dto.UserLoginReq;
-import com.g25.mailer.User.dto.UserSessionRes;
-import com.g25.mailer.User.entity.User;
-import com.g25.mailer.User.service.AuthService;
+import com.g25.mailer.user.entity.User;
+import com.g25.mailer.user.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

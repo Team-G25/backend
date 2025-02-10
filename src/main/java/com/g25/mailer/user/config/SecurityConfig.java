@@ -1,39 +1,79 @@
-package com.g25.mailer.User.Config;
+package com.g25.mailer.user.config;
 
-import com.g25.mailer.User.Filter.UserAuthenticationFilter;
+
+import com.g25.mailer.user.service.UserDetailService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-    private static final String[] PERMIT_URL_ARRAY = {
-            "/swagger-resources/**","/v3/api-docs/**","/swagger-ui/**",
-            "/api/login","/api/signup"
-    };
+
+    private final UserDetailsService userService;
+
+    //스프링 시큐리티 기능 비활성화
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring()
+                .requestMatchers(new AntPathRequestMatcher("/static/**"));
+    }
+
+
+    //특정 http 요청에 웹 보안 구성, requestMatchers() : 특정요청과 일치하는 url
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(PERMIT_URL_ARRAY).permitAll()
+                .authorizeHttpRequests(auth -> auth //인가
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/login"),
+                                new AntPathRequestMatcher("/signup"),
+                                new AntPathRequestMatcher("/user")
+                        ).permitAll()
                         .anyRequest().authenticated())
-                .csrf(csrf -> csrf.disable())
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .addFilterBefore(new UserAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .formLogin(formLogin -> formLogin //폼 기반 로그인
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/")
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login")
+                        .invalidateHttpSession(true)
+                )
+                .csrf(AbstractHttpConfigurer::disable) //csrf 비활성화
                 .build();
     }
 
+
+    //인증 관리사 관련 설정
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public AuthenticationManager authenticationManager(HttpSecurity http,
+                                                       BCryptPasswordEncoder bCryptPasswordEncoder,
+                                                       UserDetailService userService) throws Exception {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userService);
+        authProvider.setPasswordEncoder(bCryptPasswordEncoder);
+        return new ProviderManager(authProvider);
+    }
+
+    //패스워드 인코더 빈
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
+
 }

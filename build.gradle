@@ -38,6 +38,10 @@ dependencies {
 
 	//security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+
 
 	//.env
 	implementation 'io.github.cdimascio:dotenv-java:2.2.0'
@@ -46,4 +50,12 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+
+bootJar {
+	archiveBaseName.set('g25Server')
+}
+jar{
+	archiveBaseName.set('g25Server')
 }
