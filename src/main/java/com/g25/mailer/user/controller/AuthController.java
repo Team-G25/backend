@@ -1,7 +1,6 @@
 package com.g25.mailer.user.controller;
 
 import com.g25.mailer.user.entity.User;
-import com.g25.mailer.user.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
