@@ -89,6 +89,7 @@ jobs:
           nohup java -jar /home/${{ secrets.EC2_USERNAME }}/g25Server.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
           disown
           EOF
+          rm -f private_key.pem
 
 #          scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/g25Server-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/g25Server.jar
 #          ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}
