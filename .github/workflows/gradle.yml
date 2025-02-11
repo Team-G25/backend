@@ -78,7 +78,7 @@ jobs:
       - name: Deploy to EC2
         run: |
           echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
-          chmod 600 private_key.pem
+          chmod 400 private_key.pem
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           if pgrep -f g25Server.jar > /dev/null; then
             echo "서버 실행 중 - 종료 중..."
