@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 로그인관련 v1
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 

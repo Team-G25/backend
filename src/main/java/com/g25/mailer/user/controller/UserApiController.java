@@ -24,7 +24,7 @@ public class UserApiController {
 
     private final UserService userService;
 
-    // [QUIZ] 아래 에러 수정하기
+    // [QUIZ] 아래 에러 수정하기 - 완료
     //회원가입
     @PostMapping("/user")
     public CommonResponse<AddUserResponse> signup(@RequestBody AddUserRequest request) {

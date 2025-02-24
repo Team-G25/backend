@@ -13,6 +13,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * 회원테이블 v2
+ */
 @Table(name = "users", indexes = {
         @Index(name = "email_idx", columnList = "email")
 }) //이메일로 인덱스걸기
@@ -26,12 +29,18 @@ public class User implements UserDetails {
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 
-    // email 컬럼에 Index 설정
+    //email 컬럼으로  Index 설정
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password")
     private String password;
+
+    //다크모드/기본모드 설정 (추가)
+    @Column(name = "theme", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Theme theme;
+
 
     @Builder
     public User(String email, String password, String auth) {
@@ -39,7 +48,7 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    //권한 반환
+    //return 권한
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("user"));
@@ -50,28 +59,33 @@ public class User implements UserDetails {
         return email;
     }
 
-    //계정 만료 여부
     @Override
     public String getPassword() {
         return password;
     }
 
-    // 계정 잠김 여부
+    //계정만료 여부(레디스...)
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
-    //패스워드 만료 여부 반환
+    //패스워드만료 여부 반환
     @Override
     public boolean isCredentialsNonExpired() {
         return false;
     }
 
-    //계정 사용 가능 여부 반환
+    //계정사용 가능 여부 반환
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    // 테마 설정용 num
+    public enum Theme {
+        LIGHT,
+        DARK
     }
 
 }

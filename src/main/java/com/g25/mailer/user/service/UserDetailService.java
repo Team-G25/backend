@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 /**
- * 스프링 시큐리티에서 사용자 정보 가져옴
+ * 스프링 시큐리티에서 사용자 정보 가져옴 v1
  */
 @RequiredArgsConstructor
 @Service

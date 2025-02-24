@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 회원가입, 로그인, 로그아웃 처리 v2
+ */
 @RequiredArgsConstructor
 @Service
 public class UserService {
