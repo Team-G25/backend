@@ -34,4 +34,15 @@ public class TemporarySaveService {
     public List<TemporarySave> listTemporarySaves(User user) {
         return temporarySaveRepository.findByUser(user);
     }
+
+    // 사용자 기준으로 임시저장 목록 전체 삭제 -> 삭제한 것 return
+    public List<TemporarySave> deleteAllTemporarySaves(User user) {
+        return temporarySaveRepository.deleteByUser(user);
+
+    }
+
+    // 사용자 기준으로 임시저장 목록 단건 삭제 -> 삭제한 것 return
+    public List<TemporarySave> deleteSingleTemp(Long id, User user) {
+        return temporarySaveRepository.deleteByIdAndUser(id, user);
+    }
 }
