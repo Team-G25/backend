@@ -1,7 +1,6 @@
 package com.g25.mailer.user.dto;
 
 import com.g25.mailer.user.entity.TemporarySave;
-
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,17 +13,23 @@ public class TemporarySaveResponse {
     private String content;
     private LocalDateTime savedAt;
 
-    public TemporarySaveResponse(TemporarySave temporarySave) {
-        this.id = temporarySave.getId(); //메시지 일련번호
-        this.content = temporarySave.getContent();
-        this.savedAt = temporarySave.getSavedAt();
-    }
-    public static TemporarySaveResponse of(TemporarySave temporarySave) {
-        return builder()
-                .id(temporarySave.getId())
-                .content(temporarySave.getContent())
-                .savedAt(temporarySave.getSavedAt())
-                .build();
+    // @Builder어노테이션이 이 메소드를  생성자로 쓰임
+    public TemporarySaveResponse(Long id, String content, LocalDateTime savedAt) {
+        this.id = id;
+        this.content = content;
+        this.savedAt = savedAt;
     }
 
+    //엔티티를 dto로 변환시킴, 엔티티 기반 생성자
+    public TemporarySaveResponse(TemporarySave temporarySave) {
+        this(temporarySave.getId(), temporarySave.getContent(), temporarySave.getSavedAt());
+    }
+
+    public static TemporarySaveResponse of(TemporarySave saved) {
+        return builder()
+                .id(saved.getId())
+                .content(saved.getContent())
+                .savedAt(saved.getSavedAt())
+                .build();
+    }
 }

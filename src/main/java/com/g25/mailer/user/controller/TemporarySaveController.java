@@ -38,8 +38,8 @@ public class TemporarySaveController {
                 .content(request.getContent())
                 .user(user)
                 .build();
-        TemporarySave saved = temporarySaveService.saveTemporary(temporarySave);
-        return ResponseEntity.ok(TemporarySaveResponse.of(saved));
+        TemporarySaveResponse response = temporarySaveService.saveTemporary(temporarySave);
+        return ResponseEntity.ok(response);
     }
 
     // [API] 목록 조회 (사용자 인증 제거는 미구현)

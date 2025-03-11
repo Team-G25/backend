@@ -10,5 +10,5 @@ import java.util.Optional;
 
 @Repository
 public interface TemplateRepository extends JpaRepository<Template, Long> {
-    Optional<Template> findByTargetAndKeyword1AndKeyword2(Target target, Keyword keyword1, Keyword keyword2);
+    Optional<Template> findByTargetAndKeyword1AndKeyword2(Target target, String keyword1, String keyword2);
 }

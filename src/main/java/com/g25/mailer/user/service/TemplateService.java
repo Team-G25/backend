@@ -1,7 +1,9 @@
 package com.g25.mailer.user.service;
 
+import com.g25.mailer.user.entity.Keyword;
 import com.g25.mailer.user.entity.Target;
 import com.g25.mailer.user.entity.Template;
+import com.g25.mailer.user.repository.KeywordRepository;
 import com.g25.mailer.user.repository.TargetRepository;
 import com.g25.mailer.user.repository.TemplateRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.Optional;
 public class TemplateService {
     private final TemplateRepository templateRepository;
     private final TargetRepository targetRepository;
+    private final KeywordRepository keywordRepository;
 
     /**
      * 선택
@@ -29,7 +32,21 @@ public class TemplateService {
         }
         Target tar = targetOpt.get();
 
+        Optional<Keyword> keywordOpt = keywordRepository.findKeywordByKeywordEquals(keyword1);
+        Optional<Keyword> subKeywordOpt = keywordRepository.findKeywordByKeywordEquals(keyword2);
 
-        return templateRepository.findByTargetAndKeyword1AndKeyword2(tar, keyword1, keyword2); //아직 다 못함.
+
+        String key1;
+        String key2;
+
+        if (keywordOpt.isPresent() && subKeywordOpt.isPresent()) {
+            key1 = String.valueOf(keywordOpt.get());
+            key2 = String.valueOf(subKeywordOpt.get());
+
+        } else {
+            throw new NoSuchElementException();
+        }
+
+        return templateRepository.findByTargetAndKeyword1AndKeyword2(tar, key1, key2); //아직 다 못함.
     }
 }

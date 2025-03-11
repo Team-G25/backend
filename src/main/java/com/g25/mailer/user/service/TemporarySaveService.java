@@ -3,6 +3,7 @@ package com.g25.mailer.user.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.g25.mailer.user.dto.TemporarySaveResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +20,15 @@ public class TemporarySaveService {
     private final TemporarySaveRepository temporarySaveRepository;
 
     // 임시저장 생성/저장
-    public TemporarySave saveTemporary(TemporarySave temporarySave) {
-        Optional<TemporarySave> existingSaveOpt = temporarySaveRepository.findByUserAndContent(temporarySave.getUser(), temporarySave.getContent());
+    public TemporarySaveResponse saveTemporary(TemporarySave temporarySave) {
+        Optional<TemporarySave> existingSaveOpt = temporarySaveRepository.findByUserAndContent(
+                temporarySave.getUser(), temporarySave.getContent());
         if (existingSaveOpt.isPresent()) {
             throw new IllegalStateException("이미 동일한 내용이 저장되어 있습니다.");
         }
 
-        return temporarySaveRepository.save(temporarySave);
+        TemporarySave saved = temporarySaveRepository.save(temporarySave);
+        return TemporarySaveResponse.of(saved);
     }
 
     // id로 단일 임시저장 조회
