@@ -23,55 +23,24 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserDetailsService userService;
-
-    //스프링 시큐리티 기능 비활성화
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-                .requestMatchers(new AntPathRequestMatcher("/static/**"));
-    }
-
-
-    //특정 http 요청에 웹 보안 구성, requestMatchers() : 특정요청과 일치하는 url
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(auth -> auth //인가
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 new AntPathRequestMatcher("/login"),
                                 new AntPathRequestMatcher("/signup"),
-                                new AntPathRequestMatcher("/user")
+                                new AntPathRequestMatcher("/user"),
+                                new AntPathRequestMatcher("/api/temporary-saves/**")
                         ).permitAll()
-                        .anyRequest().authenticated())
-                .formLogin(formLogin -> formLogin //폼 기반 로그인
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/")
+                        .anyRequest().authenticated()
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                 )
-                .csrf(AbstractHttpConfigurer::disable) //csrf 비활성화
+                .csrf(AbstractHttpConfigurer::disable) //아직 이해못했음.. 람다식으로 변경함.
                 .build();
-    }
-
-
-    //인증 관리사 관련 설정
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http,
-                                                       BCryptPasswordEncoder bCryptPasswordEncoder,
-                                                       UserDetailService userService) throws Exception {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService);
-        authProvider.setPasswordEncoder(bCryptPasswordEncoder);
-        return new ProviderManager(authProvider);
-    }
-
-    //패스워드 인코더 빈
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
 
