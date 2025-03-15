@@ -1,23 +1,20 @@
 package com.g25.mailer.user.service;
 
 import jakarta.validation.constraints.NotNull;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.g25.mailer.user.dto.AddUserRequest;
 import com.g25.mailer.user.entity.User;
 import com.g25.mailer.user.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+/**
+ * image 첨부, 약관동의 미구현, 작성 예정
+ */
 @RequiredArgsConstructor
 @Service
 public class UserService {

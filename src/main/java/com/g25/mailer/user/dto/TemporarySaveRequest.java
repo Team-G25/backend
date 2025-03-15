@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TemporarySaveRequest {
-    @NotNull
-    private String email;
+    @NotNull private String email;
     @NotNull private String content;
 }

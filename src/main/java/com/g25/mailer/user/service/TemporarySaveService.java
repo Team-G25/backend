@@ -19,6 +19,7 @@ public class TemporarySaveService {
 
     private final TemporarySaveRepository temporarySaveRepository;
 
+
     // 임시저장 생성/저장
     public TemporarySaveResponse saveTemporary(TemporarySave temporarySave) {
         Optional<TemporarySave> existingSaveOpt = temporarySaveRepository.findByUserAndContent(
@@ -31,6 +32,7 @@ public class TemporarySaveService {
         return TemporarySaveResponse.of(saved);
     }
 
+
     // id로 단일 임시저장 조회
     @Transactional(readOnly = true)
     public TemporarySave getTemporarySave(Long id) {
@@ -38,11 +40,13 @@ public class TemporarySaveService {
                 .orElseThrow(() -> new RuntimeException("해당 임시저장 데이터가 존재하지 않습니다."));
     }
 
+
     // 모든 임시저장 목록 조회
     @Transactional(readOnly = true)
     public List<TemporarySave> listTemporarySaves() {
         return temporarySaveRepository.findAll();
     }
+
 
     // 모든 임시저장 삭제
     public void deleteAllTemporarySaves() {

@@ -13,11 +13,18 @@ java {
 	}
 }
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
 repositories {
 	mavenCentral()
 }
 
-dependencies {	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-mail' //mail
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -40,13 +47,12 @@ dependencies {	implementation 'org.springframework.boot:spring-boot-starter-data
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	testImplementation 'org.springframework.security:spring-security-test'
 
-
-
 	//.env
 	implementation 'io.github.cdimascio:dotenv-java:2.2.0'
 
 	//dev
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
 
 
 

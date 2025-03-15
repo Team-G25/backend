@@ -31,7 +31,8 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/login"),
                                 new AntPathRequestMatcher("/signup"),
                                 new AntPathRequestMatcher("/user"),
-                                new AntPathRequestMatcher("/api/temporary-saves/**")
+                                new AntPathRequestMatcher("/api/temporary-saves/**"),
+                                new AntPathRequestMatcher("/templates/**")
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -39,10 +40,8 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login")
                         .invalidateHttpSession(true)
                 )
-                .csrf(AbstractHttpConfigurer::disable) //아직 이해못했음.. 람다식으로 변경함.
+                .csrf(AbstractHttpConfigurer::disable) // csrf 비활성화
                 .build();
+
     }
-
-
-
 }

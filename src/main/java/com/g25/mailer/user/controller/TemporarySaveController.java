@@ -30,6 +30,7 @@ public class TemporarySaveController {
     private final TemporarySaveService temporarySaveService;
     private final UserDetailService userService;
 
+
     @PostMapping("/write")
     public ResponseEntity<TemporarySaveResponse> createTemporarySave(@RequestBody TemporarySaveRequest request) {
         log.info("임시 저장 content = {}", request.getContent());
@@ -38,20 +39,22 @@ public class TemporarySaveController {
                 .content(request.getContent())
                 .user(user)
                 .build();
+
         TemporarySaveResponse response = temporarySaveService.saveTemporary(temporarySave);
         return ResponseEntity.ok(response);
     }
+
 
     // [API] 목록 조회 (사용자 인증 제거는 미구현)
     @GetMapping("/list")
     public ResponseEntity<List<TemporarySaveResponse>> listTemporarySaves() {
         List<TemporarySave> saves = temporarySaveService.listTemporarySaves();
         List<TemporarySaveResponse> response = saves.stream()
-                .map(TemporarySaveResponse::of)
+                .map(TemporarySaveResponse::new)
                 .toList();
-
         return ResponseEntity.ok(response);
     }
+
 
     // [API] 임시저장 목록 전체 삭제 (사용자 인증 제거)
     @DeleteMapping("/delete-all")
