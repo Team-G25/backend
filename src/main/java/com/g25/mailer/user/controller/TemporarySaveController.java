@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping("/api/temporary-saves")
+@RequestMapping("/temporary")
 @RequiredArgsConstructor
 @Slf4j
 public class TemporarySaveController {
@@ -31,6 +31,11 @@ public class TemporarySaveController {
     private final UserDetailService userService;
 
 
+    /**
+     * 메일작성
+     * @param request
+     * @return
+     */
     @PostMapping("/write")
     public ResponseEntity<TemporarySaveResponse> createTemporarySave(@RequestBody TemporarySaveRequest request) {
         log.info("임시 저장 content = {}", request.getContent());
@@ -45,7 +50,10 @@ public class TemporarySaveController {
     }
 
 
-    // [API] 목록 조회 (사용자 인증 제거는 미구현)
+    /**
+     * 임시 메일함 전체 조회
+     * @return
+     */
     @GetMapping("/list")
     public ResponseEntity<List<TemporarySaveResponse>> listTemporarySaves() {
         List<TemporarySave> saves = temporarySaveService.listTemporarySaves();
@@ -55,8 +63,11 @@ public class TemporarySaveController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * 임시 메일함에서 전체 삭제
+     * @return
+     */
 
-    // [API] 임시저장 목록 전체 삭제 (사용자 인증 제거)
     @DeleteMapping("/delete-all")
     public ResponseEntity<Void> deleteAllTemp() {
         temporarySaveService.deleteAllTemporarySaves();
@@ -64,7 +75,11 @@ public class TemporarySaveController {
         return ResponseEntity.noContent().build();
     }
 
-    // [API] 임시저장 목록 단건 삭제 (사용자 인증 제거)
+    /**
+     * 임시 메일함에서 단건 삭제
+     * @param id
+     * @return
+     */
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteSingleTemp(@PathVariable Long id) {
         temporarySaveService.deleteSingleTemp(id);

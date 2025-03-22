@@ -14,4 +14,5 @@ public class TemplateRequest {
     private String keyword1;
     private String keyword2;
 
+
 }

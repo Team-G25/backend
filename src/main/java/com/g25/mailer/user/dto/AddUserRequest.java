@@ -8,6 +8,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddUserRequest {
+
+    private String nickname;
     @NotNull
     private String email;
     @NotNull
@@ -15,6 +17,7 @@ public class AddUserRequest {
 
     public User toEntity(){
         return User.builder()
+                .nickname(nickname)
                 .email(email)
                 .password(password)
                 .build();

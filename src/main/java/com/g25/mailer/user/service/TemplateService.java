@@ -1,5 +1,7 @@
 package com.g25.mailer.user.service;
 
+import com.g25.mailer.user.dto.SendTemplateRequest;
+import com.g25.mailer.user.dto.TemplateRequest;
 import com.g25.mailer.user.dto.TemplateResponse;
 import com.g25.mailer.user.entity.Keyword;
 import com.g25.mailer.user.entity.Target;
@@ -9,15 +11,20 @@ import com.g25.mailer.user.repository.TargetRepository;
 import com.g25.mailer.user.repository.TemplateRepository;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.Optional;
+
 
 /**
  * 구현중입니다.
  */
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -28,7 +35,13 @@ public class TemplateService {
 
     private final EmailService emailService;
 
-
+    /**
+     * 템플릿 조회
+     * @param targetName
+     * @param keyword1
+     * @param keyword2
+     * @return
+     */
     public List<TemplateResponse> getTemplates(String targetName, String keyword1, String keyword2) {
         Target target = targetRepository.findByTargetName(targetName)
                 .orElseThrow(() -> new IllegalArgumentException("No Target: " + targetName));
@@ -48,13 +61,36 @@ public class TemplateService {
     }
 
 
+    /**
+     * 템플릿조회 + 사용자커스텀 + 이메일 송신
+     * @param request
+     * @throws MessagingException
+     */
+    public void sendEmailTemplate(SendTemplateRequest request) throws MessagingException {
+        Template template = templateRepository.findById(request.getTemplateId())
+                .orElseThrow(() -> new IllegalArgumentException("조회되는 템플릿이 없습니다."));
 
-    //템플릿 메일 송신
-    public void sendEmailTemplate(Long templateId, String recipientEmail, String customContent) throws MessagingException {
-        Template template = templateRepository.findById(templateId)
-                .orElseThrow(() -> new IllegalArgumentException("No Template Found"));
+        //수정
+        String finalTitle = (request.getCustomTitle() != null && !request.getCustomTitle().isBlank())
+                ? request.getCustomTitle()
+                : template.getTitle(); // 없으면 기본제목 그대로
 
-        String finalContent = customContent != null ? customContent : template.getContent();
-        emailService.sendMail(recipientEmail, template.getTitle(), finalContent);
+        String finalContent = (request.getCustomContent() != null && !request.getCustomContent().isBlank())
+                ? request.getCustomContent()
+                : template.getContent(); //기본내용 그대로
+
+        emailService.sendMail(request.getRecipientEmail(), finalTitle, finalContent, request.getFrom());
     }
+
+    public void saveEmailTemplate() {
+
+    }
+
+    /**
+     * 임시저장
+     */
+
+
+
+
 }

@@ -18,10 +18,16 @@ public class EmailController {
 
     private final EmailService emailService;
 
-
+    /**
+     * 메일 작성하고 송신
+     * @param request
+     * @return
+     */
     @PostMapping("/send")
     public ResponseEntity<String> sendMail(@RequestBody EmailRequest request) {
-        emailService.sendMail(request.getTo(), request.getSubject(), request.getContent());
+        emailService.sendMail(request.getTo(), request.getSubject(), request.getContent(), request.getFrom());
         return ResponseEntity.ok("메일이 성공적으로 전송되었습니다.");
     }
+
+
 }

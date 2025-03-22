@@ -31,6 +31,7 @@ public class UserDetailService implements UserDetailsService {
 
     }
 
+
     //이메일받고 유저객체 리턴
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)

@@ -7,6 +7,7 @@ public enum ReturnCode {
     SUCCESS("0000", "Success."),
     UNKNOWN_ERROR("9999", "Unable to process your request.");
 
+
     private String code;
     private String text;
 

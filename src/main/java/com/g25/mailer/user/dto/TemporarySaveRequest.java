@@ -9,4 +9,7 @@ import lombok.Setter;
 public class TemporarySaveRequest {
     @NotNull private String email;
     @NotNull private String content;
+
+
+
 }

@@ -3,13 +3,14 @@ package com.g25.mailer.user.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import com.g25.mailer.user.dto.UserProfileResponse;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class CommonResponse<T> {
+public class CommonResponse<T>  {
     private String returnCode;
     private String returnMessage;
     private T info;
@@ -35,5 +36,8 @@ public class CommonResponse<T> {
 
     public static <T> CommonResponse<T> success(T info) {
         return new CommonResponse(ReturnCode.SUCCESS, info);
+    }
+
+    public static <T> CommonResponse<T> fail(T info) {    return new CommonResponse<>(ReturnCode.UNKNOWN_ERROR, info);
     }
 }
