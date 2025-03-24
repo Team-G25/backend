@@ -1,19 +1,28 @@
 package com.g25.mailer.user.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.g25.mailer.user.common.CommonResponse;
 import com.g25.mailer.user.dto.*;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.g25.mailer.user.entity.User;
 import com.g25.mailer.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +36,10 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Uploader s3Uploader;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     private static final String PROFILE_IMAGE_DIR = "uploads/profile_images/";
 
@@ -93,39 +106,22 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("없는 유저 정보입니다."));
 
-        // 디렉토리 없으면 생성
-        File uploadDir = new File(PROFILE_IMAGE_DIR);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
+        // S3에 이미지 업로드
+        String fileKey = s3Uploader.uploadProfileImg(file);
 
-        // 랜덤 UUID + 원본 확장자로 저장
-        String originalFilename = file.getOriginalFilename();
-        String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String newFileName = UUID.randomUUID() + extension;
-
-        File destinationFile = new File(PROFILE_IMAGE_DIR + newFileName);
-        try {
-            file.transferTo(destinationFile);
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to upload profile image", e);
-        }
-
-        // 기존 이미지 삭제 (새 이미지로 교체할 경우)
+        // 기존 이미지 삭제 (있다면)
         if (user.getProfileImageUrl() != null) {
-            File oldFile = new File(user.getProfileImageUrl());
-            if (oldFile.exists()) {
-                oldFile.delete();
-            }
+            String oldKey = extractKeyFromUrl(user.getProfileImageUrl());
+            s3Uploader.deleteObject(oldKey);
         }
 
-        // DB에 새 이미지 경로 저장
-        user.setProfileImageUrl(PROFILE_IMAGE_DIR + newFileName);
+        // S3 URL 구성
+        String imageUrl = "https://" + bucket + ".s3.amazonaws.com/" + fileKey;
+        user.setProfileImageUrl(imageUrl);
         userRepository.save(user);
 
-        return user.getProfileImageUrl();
+        return imageUrl;
     }
-
 
     /**
      * 유저 비밀번호 변경
@@ -182,6 +178,39 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."))
                 .getId();
+    }
+
+
+    /**e
+     * 유저 프로필 이미지 삭제
+     */
+    @Transactional
+    public void deleteProfileImage(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        String key = extractKeyFromUrl(user.getProfileImageUrl()); //S3에서 삭제할 파일명확장자포함(key) 추출
+
+        if (key != null) {
+            s3Uploader.deleteObject(key); // S3에서 삭제
+        }
+        user.setProfileImageUrl(null); // DB에서 제거
+    }
+
+    /**
+     * 파일명과 확장자만 골라오기
+     * @param profileImageUrl
+     * @return
+     */
+    // 예: https://bucket.s3.amazonaws.com/profile-img/abc.jpg → profile-img/abc.jpg
+    private String extractKeyFromUrl(String profileImageUrl) {
+        if (profileImageUrl == null || profileImageUrl.isBlank()) return null;
+        try {
+            URL parsedUrl = new URL(profileImageUrl);
+            return parsedUrl.getPath().substring(1); // 맨 앞 '/' 제거
+        } catch (MalformedURLException e) {
+            return null;
+        }
     }
 
 

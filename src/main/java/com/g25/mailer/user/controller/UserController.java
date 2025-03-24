@@ -5,13 +5,16 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.g25.mailer.user.common.CommonResponse;
 import com.g25.mailer.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -72,19 +75,21 @@ public class UserController {
     /**
      * TODO : 유저 프로필 사진 업로드 (서버사이드)
      * 클라이언트 사이드
-     * 클라이언트쪽에서 s3 URL를 서버로 넘겨준다 -> 서버는 String으로 들어온 URL 를 저장
+     *  클라이언트쪽에서 s3 URL를 서버로 넘겨준다 -> 서버는 String으로 들어온 URL 를 저장
      *
      *
      * 서버사이드 <- 이걸로 구현
-     * 서버가 multipart타입으로받아 s3에 등록 -> url받아  Db에 값으로 저장
+     * 1. 클라이언트가 multipart/form-data로 요청
+     * 2. 서버가 S3Uploader.uploadProfileImg() 호출
+     * 3. 해당 URL을 DB에 저장 (→ service에서 처리)
      *
-     * @param request
+     * @param
      * @param session
      * @return
      */
     @PostMapping("/setting/img")
     public ResponseEntity<CommonResponse<String>> uploadProfileImage(
-            @ModelAttribute @Valid ProfileImgRequest request,
+            @RequestParam("file") MultipartFile file,
             HttpSession session
     ) {
         Long userId = (Long) session.getAttribute("userId");
@@ -92,11 +97,31 @@ public class UserController {
             return ResponseEntity.status(401).body(CommonResponse.fail("로그인이 필요합니다."));
         }
 
-        String Url = userService.uploadProfileImage(userId, request.getFile());
-        return ResponseEntity.ok(CommonResponse.success(Url));
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body(CommonResponse.fail("이미지 파일을 업로드해주세요."));
+        }
+
+        String url = userService.uploadProfileImage(userId, file);
+        return ResponseEntity.ok(CommonResponse.success(url));
     }
 
 
+
+    /**
+     * 유저 프로필 이미지 삭제(파일 삭제)
+     * @param session
+     * @return
+     */
+    @DeleteMapping("/setting/delete/img")
+    public ResponseEntity<CommonResponse<String>> deleteProfileImage(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401).body(CommonResponse.fail("로그인이 필요합니다."));
+        }
+
+        userService.deleteProfileImage(userId);
+        return ResponseEntity.ok(CommonResponse.success("프로필 이미지가 삭제되었습니다."));
+    }
 
 
     /**

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,4 +17,9 @@ public class SendTemplateRequest {
     private String from;           // 송신
     private String customTitle;    // 변경할 제목
     private String customContent;  // 변경할 내용
+    private List<String> attachmentKeys; //첨부파일
+
+    public String getTo() {
+        return recipientEmail;
+    }
 }

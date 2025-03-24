@@ -67,7 +67,6 @@ public class TemporarySaveController {
      * 임시 메일함에서 전체 삭제
      * @return
      */
-
     @DeleteMapping("/delete-all")
     public ResponseEntity<Void> deleteAllTemp() {
         temporarySaveService.deleteAllTemporarySaves();

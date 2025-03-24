@@ -1,7 +1,7 @@
 package com.g25.mailer.user.service;
 
 import com.g25.mailer.user.dto.SendTemplateRequest;
-import com.g25.mailer.user.dto.TemplateRequest;
+
 import com.g25.mailer.user.dto.TemplateResponse;
 import com.g25.mailer.user.entity.Keyword;
 import com.g25.mailer.user.entity.Target;
@@ -63,6 +63,7 @@ public class TemplateService {
 
     /**
      * 템플릿조회 + 사용자커스텀 + 이메일 송신
+     *  1. 첨부파일유무에 따라 emailService에서 분기
      * @param request
      * @throws MessagingException
      */
@@ -70,25 +71,38 @@ public class TemplateService {
         Template template = templateRepository.findById(request.getTemplateId())
                 .orElseThrow(() -> new IllegalArgumentException("조회되는 템플릿이 없습니다."));
 
-        //수정
+        //제목,내용 수정할 경우 변경 반영
         String finalTitle = (request.getCustomTitle() != null && !request.getCustomTitle().isBlank())
                 ? request.getCustomTitle()
-                : template.getTitle(); // 없으면 기본제목 그대로
+                : template.getTitle();
 
         String finalContent = (request.getCustomContent() != null && !request.getCustomContent().isBlank())
                 ? request.getCustomContent()
-                : template.getContent(); //기본내용 그대로
+                : template.getContent();
 
-        emailService.sendMail(request.getRecipientEmail(), finalTitle, finalContent, request.getFrom());
+        // 첨부파일유뮤에 따라 있으면 fileKeys(파일명)로 초기화
+        List<String> fileKeys = (request.getAttachmentKeys() != null) ? request.getAttachmentKeys() : List.of();
+
+        if (fileKeys.isEmpty()) {
+            emailService.sendSimpleMail(
+                    request.getTo(),
+                    finalTitle,
+                    finalContent,
+                    request.getFrom()
+            );
+        } else {
+            emailService.sendMailWithAttachment(
+                    request.getTo(),
+                    finalTitle,
+                    finalContent,
+                    request.getFrom(),
+                    fileKeys
+            );
+        }
     }
 
-    public void saveEmailTemplate() {
 
-    }
 
-    /**
-     * 임시저장
-     */
 
 
 

@@ -50,6 +50,7 @@ public class User implements UserDetails {
         return List.of(new SimpleGrantedAuthority("user"));
     }
 
+    //UserDetail때문에 선언해야함.
     @Override
     public String getUsername() {
         return email;

@@ -37,15 +37,15 @@ public class HomeController {
             );
         }
 
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<User> userOpt = userRepository.findById(userId);
 
-        if (userOptional.isEmpty()) {
+        if (userOpt.isEmpty()) {
             return ResponseEntity.badRequest().body(
                     CommonResponse.fail(new UserProfileResponse("유저를 찾을 수 없습니다.", null))
             );
         }
 
-        User user = userOptional.get();
+        User user = userOpt.get();
         UserProfileResponse response = new UserProfileResponse(user.getNickname(), user.getProfileImageUrl());
 
         return ResponseEntity.ok(CommonResponse.success(response));

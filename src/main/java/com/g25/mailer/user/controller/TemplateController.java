@@ -1,9 +1,11 @@
 package com.g25.mailer.user.controller;
 
+import com.g25.mailer.user.common.CommonResponse;
 import com.g25.mailer.user.dto.SendTemplateRequest;
 import com.g25.mailer.user.dto.TemplateResponse;
 import com.g25.mailer.user.service.TemplateService;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -41,10 +43,15 @@ public class TemplateController {
      * @throws MessagingException
      */
     @PostMapping("/update-and-send")
-    public ResponseEntity<Void> updateAndSendEmail(@RequestBody SendTemplateRequest request) throws MessagingException {
-        templateService.sendEmailTemplate(request);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CommonResponse<String>> updateAndSendEmail(@Valid @RequestBody SendTemplateRequest request) {
+        try {
+            templateService.sendEmailTemplate(request);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(CommonResponse.success("템플릿 메일 전송 완료"));
     }
+
 
 
     /**
