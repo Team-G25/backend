@@ -5,16 +5,14 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import com.g25.mailer.user.common.CommonResponse;
+import com.g25.mailer.common.CommonResponse;
 import com.g25.mailer.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController

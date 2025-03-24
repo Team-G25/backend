@@ -1,6 +1,6 @@
 package com.g25.mailer.user.controller;
 
-import com.g25.mailer.user.common.CommonResponse;
+import com.g25.mailer.common.CommonResponse;
 import com.g25.mailer.user.dto.UserProfileResponse;
 import com.g25.mailer.user.entity.User;
 import com.g25.mailer.user.repository.UserRepository;
