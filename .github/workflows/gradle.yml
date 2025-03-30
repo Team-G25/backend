@@ -33,11 +33,11 @@ jobs:
           echo ${{secrets.APPLICATION_YML}} | base64 
            chmod +x ./gradlew
           ./gradlew build -x test
+      
+      
 
-
-
-     #빌드해서 생긴 JAR 파일을 깃허브 아티팩트로 업로드
-     #Artifact를 통해 작업을 완료한 후 데이터를 보관하고 동일한 Workflow의 다른 작업에서 공유
+      #빌드해서 생긴 JAR 파일을 깃허브 아티팩트로 업로드
+      #Artifact를 통해 작업을 완료한 후 데이터를 보관하고 동일한 Workflow의 다른 작업에서 공유
       - name: Upload build artifact
         uses: actions/upload-artifact@v4 #upload artifact version == download artifact version
         with:
@@ -69,31 +69,25 @@ jobs:
       - name: Check if JAR file exists after download
         run: ls -alh build/libs/
 
-
-      # EC2에 배포
-      # EC2 SSH 키를 private_key.pem 파일로 저장 ( 위치는 GitHub 서버 )
-      # SCP를 사용하여 JAR 파일을 EC2 서버로 복사
-      # SSH를 사용하여 EC2 서버에 연결하고 현재 실행 중인 Java 프로세스를 종료한 다음 새로운 Java 프로세스 생성 및 실행!!
-      ## NLP 적용하면 IP -> 도메인으로 수정 + EC2 늘리면 run 추가
-      - name: Deploy to EC2
+      - name: Decode SSH Key
         run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > private_key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > private_key.pem
           chmod 400 private_key.pem
+
+      - name: Copy JAR to EC2
+        run: |
+          scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/*.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/app/g25Server.jar
+
+      - name: SSH into EC2 and restart service
+        run: |
           ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
           if pgrep -f g25Server.jar > /dev/null; then
             echo "서버 실행 중 - 종료 중..."
             pkill -f g25Server.jar
-          else
-            echo "서버가 실행되지 않음 - 새로 시작."
           fi
-          nohup java -jar /home/${{ secrets.EC2_USERNAME }}/g25Server.jar > /home/${{ secrets.EC2_USERNAME }}/app.log 2>&1 &
+          nohup java -jar /home/${{ secrets.EC2_USERNAME }}/app/g25Server.jar > /home/${{ secrets.EC2_USERNAME }}/app/app.log 2>&1 &
           disown
           EOF
-          rm -f private_key.pem
 
-#          scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/g25Server-0.0.1-SNAPSHOT.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/g25Server.jar
-#          ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}
-#          "pkill -f g25Server.jar; nohup java -jar /home/${{ secrets.EC2_USERNAME }}/g25Server.jar > app.log 2>&1 &"
-#          rm -f private_key.pem
-#
-
+      - name: Clean up private key
+        run: rm -f private_key.pem
