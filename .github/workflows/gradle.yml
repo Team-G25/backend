@@ -67,11 +67,10 @@ jobs:
 
             echo "rename jar"
             mv $APP_DIR/$JAR_NAME $TARGET_JAR
-
-            echo "Starting new application"
+          
             nohup java -jar $TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
-            
-            echo "베포 성공"
+            echo "배포 성공" || true
+            exit 0
 
       - name: Confirm app started
         uses: appleboy/ssh-action@v0.1.8
@@ -81,5 +80,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             pgrep -fl 'java -jar'
-            echo "로그출력"
+            echo "로그출력 ⇣"
             tail -n 20 /home/${{ secrets.EC2_USERNAME }}/app/nohup.out
+            echo "✅✅✅ 배포 완료! 애플리케이션 실행 시작됨 ✅✅✅"
