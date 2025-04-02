@@ -1,4 +1,3 @@
-
 name: Project CI/CD
 
 on:
@@ -7,77 +6,67 @@ on:
   pull_request:
     branches: [ main ]
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses : actions/checkout@v3
+      - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      # -x test: 테스트 생략 빌드)
       - name: Build with Gradle
-        run: ./gradlew clean build
-#          ./gradlew clean build -x test
-          
-#      #빌드해서 생긴 JAR 파일을 깃허브 아티팩트로 업로드
-#      #Artifact를 통해 작업을 완료한 후 데이터를 보관하고 동일한 Workflow의 다른 작업에서 공유
-#      - name: Upload build artifact
-#        uses: actions/upload-artifact@v4 #upload artifact version == download artifact version
-#        with:
-#          name: g25Server
-#          # 업로드할 파일의 경로를 지정 (build/libs,  g25Server jar 파일을 업로드)
-#          # 빌드 단계에서 생성된 jar파일
-#          path: build/libs/*.jar
-#
-#
-#  #배포
-#  deploy:
-#    needs: build #빌드 성공한 경우에만 deploy
-#    # Ubuntu 환경에서 실행 (Github Actions에서 제공하는 기본 실행 중 하나)
-#    runs-on: ubuntu-latest
-#
-#    # Github 이벤트가 push일 때만 작업을 실행
-#    if: github.event_name == 'push'
-#
-#    # 위의 빌드작업한 JAR 파일 = 아티팩트를 다운로드
-#    steps:
-#      - name: Download build artifact
-#        uses: actions/download-artifact@v4 #upload artifact version == download artifact version
-#        with:
-#          # Project 이름으로 업로드된 artifact를 build/libs 경로에 다운로드
-#          name: g25Server
-#          path: build/libs/
-#
-#      # JAR 파일 존재 여부 확인
-#      - name: Check if JAR file exists after download
-#        run: ls -alh build/libs/
-#
-#      - name: Decode SSH Key
-#        run: |
-#          echo "${{ secrets.EC2_SSH_KEY }}" | base64 -d > private_key.pem
-#          chmod 400 private_key.pem
-#
-#      - name: Copy JAR to EC2
-#        run: |
-#          scp -i private_key.pem -o StrictHostKeyChecking=no build/libs/*.jar ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/app/g25Server.jar
-#
-#      - name: SSH into EC2 and restart service
-#        run: |
-#          ssh -i private_key.pem -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-#          if pgrep -f g25Server.jar > /dev/null; then
-#            echo "서버 실행 중 - 종료 중..."
-#            pkill -f g25Server.jar
-#          fi
-#          nohup java -jar /home/${{ secrets.EC2_USERNAME }}/app/g25Server.jar > /home/${{ secrets.EC2_USERNAME }}/app/app.log 2>&1 &
-#          disown
-#          EOF
-#
-#      - name: Clean up private key
-#        run: rm -f private_key.pem
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build -x test
+
+      - name: Set artifact
+        id: set-artifact
+        run: |
+          ARTIFACT_NAME=$(ls ./build/libs/*.jar | head -n 1 | xargs basename)
+          echo "artifact=$ARTIFACT_NAME" >> $GITHUB_ENV
+
+      - name: Upload JAR to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "./build/libs/${{ env.artifact }}"
+          target: "/home/${{ secrets.EC2_USERNAME }}/app"
+
+      - name: Run jar on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            APP_DIR=/home/${{ secrets.EC2_USERNAME }}/app
+            JAR_NAME=${{ env.artifact }}
+            TARGET_JAR=$APP_DIR/g25Server.jar
+
+            echo "Stop existing jar"
+            pkill -f 'java -jar' || echo "no jar found"
+
+            echo "stop existing process"
+            for s in {1..30}; do
+              if pgrep -f 'java -jar' > /dev/null; then
+                echo "running 00:$s"
+                sleep 1
+              else
+                echo "error occurs"
+                break
+              fi
+            done
+
+            echo ">>> Removing old JARs"
+            rm $APP_DIR/*.jar
+
+            echo rename jar"
+            mv $APP_DIR/$JAR_NAME $TARGET_JAR
+
+            echo ">>> Starting new application"
+            nohup java -jar $TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
