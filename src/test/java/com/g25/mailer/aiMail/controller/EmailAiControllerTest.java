@@ -33,9 +33,9 @@ class EmailAiControllerTest {
     private GptClient gptClient;
 
     @Test
-    @DisplayName("출결 문의 메일 자동 생성 API - 성공 응답 반환")
+    @DisplayName("출결 문의 메일 생성 API - 성공 응답 리턴")
     void generateEmail_returnsAttendanceMail() throws Exception {
-        // given
+
         String prompt = "지각 사유에 대해 교수님께 정중하게 출결 문의 메일을 작성해줘";
         String generated = "교수님, 지각하여 수업에 참석하지 못한 점 양해 부탁드리며, 출석 인정 가능 여부를 여쭙고자 합니다.";
 
@@ -44,16 +44,15 @@ class EmailAiControllerTest {
 
         AutoGenerateRequest request = new AutoGenerateRequest(prompt);
 
-        // when + then
         performPost("/ai/generate", request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").value(generated));
     }
 
     @Test
-    @DisplayName("출결 관련 문장 교정 API - 정제된 문장 반환")
+    @DisplayName("출결 관련 문장 교정 API - 정제된 문장 리턴")
     void refineEmail_returnsRefinedAttendanceText() throws Exception {
-        // given
+
         String content = "교수님 지각했는데 출석 처리 해주실 수 있나요";
         String refined = "교수님, 오늘 지각하여 출석 여부에 대해 여쭙고 싶습니다.";
 
@@ -62,7 +61,7 @@ class EmailAiControllerTest {
 
         RefineRequest request = new RefineRequest(content);
 
-        // when + then
+
         performPost("/ai/refine", request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.refined").value(refined));
