@@ -25,7 +25,7 @@ jobs:
       - name: Set artifact
         id: set-artifact
         run: |
-          ARTIFACT_NAME=$(ls ./build/libs/*.jar | head -n 1 | xargs basename)
+          ARTIFACT_NAME=$(ls ./build/libs/*.jar | grep -v 'plain' | head -n 1 | xargs basename)
           echo "artifact=$ARTIFACT_NAME" >> $GITHUB_ENV
 
       - name: Upload JAR to EC2
