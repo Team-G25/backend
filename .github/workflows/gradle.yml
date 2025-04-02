@@ -77,15 +77,3 @@ jobs:
       
             echo "✅ 배포 완료"
             exit 0
-
-      - name: Confirm app started
-        uses: appleboy/ssh-action@v0.1.8
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            pgrep -fl 'java -jar'
-            echo "로그출력 ⇣"
-            tail -n 20 /home/${{ secrets.EC2_USERNAME }}/app/nohup.out
-            echo "✅✅✅ 배포 완료! 애플리케이션 실행 시작됨 ✅✅✅"
