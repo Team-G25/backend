@@ -65,11 +65,17 @@ jobs:
             echo "Removing old JARs"
             rm -f $APP_DIR/*.jar
 
-            echo "rename jar"
+            echo "Rename JAR"
             mv $APP_DIR/$JAR_NAME $TARGET_JAR
-          
+      
+            echo "Starting new application"
             nohup java -jar $TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
-            echo "배포 성공" || true
+            sleep 2
+      
+            echo "Checking Java process"
+            pgrep -fl 'java -jar' || echo "실패"
+      
+            echo "✅ 배포 완료"
             exit 0
 
       - name: Confirm app started
