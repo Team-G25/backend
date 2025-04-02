@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.g25.mailer.aiMail.dto.AutoGenerateRequest;
 import com.g25.mailer.aiMail.dto.RefineRequest;
 import com.g25.mailer.aiMail.gpt.GptClient;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,35 +30,39 @@ class EmailAiControllerTest {
     private ObjectMapper objectMapper;
 
     @MockBean
-    private GptClient gptClient; // GPT만 mock
+    private GptClient gptClient;
 
     @Test
-    @DisplayName("자동 이메일 생성 API - 성공 응답 반환")
-    void generateEmail_returnsGeneratedContent() throws Exception {
-        String prompt = "이력서를 바탕으로 자기소개서를 작성해줘";
-        String generated = "자동 생성된 이메일입니다.";
+    @DisplayName("출결 문의 메일 자동 생성 API - 성공 응답 반환")
+    void generateEmail_returnsAttendanceMail() throws Exception {
+        // given
+        String prompt = "지각 사유에 대해 교수님께 정중하게 출결 문의 메일을 작성해줘";
+        String generated = "교수님, 지각하여 수업에 참석하지 못한 점 양해 부탁드리며, 출석 인정 가능 여부를 여쭙고자 합니다.";
 
         given(gptClient.sendMessage(anyString(), eq(prompt)))
                 .willReturn(generated);
 
         AutoGenerateRequest request = new AutoGenerateRequest(prompt);
 
+        // when + then
         performPost("/ai/generate", request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").value(generated));
     }
 
     @Test
-    @DisplayName("이메일 문법 교정 API - 교정된 텍스트 반환")
-    void refineEmail_returnsRefinedText() throws Exception {
-        String content = "안녕하세요 저는 개발자입니다";
-        String refined = "안녕하세요. 저는 개발자입니다.";
+    @DisplayName("출결 관련 문장 교정 API - 정제된 문장 반환")
+    void refineEmail_returnsRefinedAttendanceText() throws Exception {
+        // given
+        String content = "교수님 지각했는데 출석 처리 해주실 수 있나요";
+        String refined = "교수님, 오늘 지각하여 출석 여부에 대해 여쭙고 싶습니다.";
 
         given(gptClient.sendMessage(anyString(), eq(content)))
                 .willReturn(refined);
 
         RefineRequest request = new RefineRequest(content);
 
+        // when + then
         performPost("/ai/refine", request)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.refined").value(refined));
