@@ -42,7 +42,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             APP_DIR=/home/${{ secrets.EC2_USERNAME }}/app
             JAR_NAME=${{ env.artifact }}
