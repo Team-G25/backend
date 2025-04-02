@@ -23,8 +23,8 @@ jobs:
 
       # -x test: 테스트 생략 빌드)
       - name: Build with Gradle
-        run: | 
-          ./gradlew clean build -x test
+        run: ./gradlew clean build
+#          ./gradlew clean build -x test
           
 #      #빌드해서 생긴 JAR 파일을 깃허브 아티팩트로 업로드
 #      #Artifact를 통해 작업을 완료한 후 데이터를 보관하고 동일한 Workflow의 다른 작업에서 공유
