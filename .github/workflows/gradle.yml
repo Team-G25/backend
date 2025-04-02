@@ -62,10 +62,10 @@ jobs:
               fi
             done
 
-            echo ">>> Removing old JARs"
+            echo "Removing old JARs"
             rm $APP_DIR/*.jar
 
-            echo rename jar"
+            echo "rename jar"
             mv $APP_DIR/$JAR_NAME $TARGET_JAR
 
             echo ">>> Starting new application"
