@@ -1,11 +1,13 @@
 package com.g25.mailer.aiMail.service;
 
 import com.g25.mailer.aiMail.gpt.GptClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailAiService {
 
+    @Autowired
     private GptClient gptClient;
 
     public String refineEmailContent(String content) {
