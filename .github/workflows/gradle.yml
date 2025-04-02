@@ -63,10 +63,23 @@ jobs:
             done
 
             echo "Removing old JARs"
-            rm $APP_DIR/*.jar
+            rm -f $APP_DIR/*.jar
 
             echo "rename jar"
             mv $APP_DIR/$JAR_NAME $TARGET_JAR
 
-            echo ">>> Starting new application"
+            echo "Starting new application"
             nohup java -jar $TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
+            
+            echo "베포 성공"
+
+      - name: Confirm app started
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            pgrep -fl 'java -jar'
+            echo "로그출력"
+            tail -n 20 /home/${{ secrets.EC2_USERNAME }}/app/nohup.out
