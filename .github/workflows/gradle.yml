@@ -63,13 +63,10 @@ jobs:
             done
 
             echo "Removing old JARs"
-            rm -f $APP_DIR/*.jar
-
-            echo "Rename JAR"
-            mv $APP_DIR/$JAR_NAME $TARGET_JAR
+            rm -f $APP_DIR/g25Server.jar
             
             echo "Starting new application"
-            nohup java -jar $TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
+            nohup java -jar $JAR_NAME > $APP_DIR/nohup.out 2>&1 &
             sleep 2
             
             echo "Checking Java process"
