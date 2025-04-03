@@ -56,9 +56,13 @@ jobs:
 
 
             if [ "$PKILL_STATUS" -eq 0 ]; then
-              echo "✅ 기존 프로세스 정상 종료 (pkill 0) ✅"
+            echo "✅ 기존 프로세스 정상 종료 (pkill 0) ✅"
             elif [ "$PKILL_STATUS" -eq 143 ]; then
-              echo "✅ 정상 종료된 프로세스 (SIGTERM - 143) ✅"
+            echo "✅ 정상 종료된 프로세스 (SIGTERM - 143) ✅"
+            else
+            echo "ℹ️ 종료할 프로세스 없음 또는 다른 상태 ($PKILL_STATUS)"
+            fi
+
 
 
             echo "stop existing process"
