@@ -22,29 +22,58 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build -x test
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
+      - name: Set artifact
+        id: set-artifact
+        run: |
+          ARTIFACT_NAME=$(ls ./build/libs/*.jar | grep -v 'plain' | head -n 1 | xargs basename)
+          echo "artifact=$ARTIFACT_NAME" >> $GITHUB_ENV
 
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v3
-
-      - name: Copy jar to remote server
+      - name: Upload JAR to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "build/libs/g25Server.jar"
-          target: "/home/${{ secrets.EC2_USER }}/app"
+          source: "./build/libs/${{ env.artifact }}"
+          target: "/home/${{ secrets.EC2_USERNAME }}/app"
 
-      - name: Run application on EC2
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Run jar on EC2
+        uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            pkill -f 'java -jar' || true
-            nohup java -jar /home/${{ secrets.EC2_USER }}/app/*.jar > /home/${{ secrets.EC2_USER }}/app/app.log 2>&1 &
+            APP_DIR=/home/${{ secrets.EC2_USERNAME }}/app
+            JAR_NAME=${{ env.artifact }}
+            TARGET_JAR=$APP_DIR/g25Server.jar
+
+            echo "Stop existing jar"
+            pkill -f 'java -jar' || echo "no jar found"
+
+            echo "stop existing process"
+            for s in {1..30}; do
+              if pgrep -f 'java -jar' > /dev/null; then
+                echo "running 00:$s"
+                sleep 1
+              else
+                echo "error occurs"
+                break
+              fi
+            done
+
+            echo "Removing old JARs"
+            rm -f $APP_DIR/*.jar
+
+            echo "Rename JAR"
+            mv $APP_DIR/$JAR_NAME $TARGET_JAR
+            
+            echo "Starting new application"
+            nohup java -jar $TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
+            sleep 2
+            
+            echo "Checking Java process"
+            pgrep -fl 'java -jar' || echo "실패"
+            
+            echo "✅ 배포 완료"
+            exit 0
