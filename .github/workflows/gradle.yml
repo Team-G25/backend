@@ -22,61 +22,29 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build -x test
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
 
-      - name: Upload JAR to EC2
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Copy jar to remote server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "./build/libs/g25Server.jar"
-          target: "/home/${{ secrets.EC2_USERNAME }}/app"
+          source: "build/libs/g25Server.jar"
+          target: "/home/${{ secrets.EC2_USER }}/app"
 
-      - name: Run jar on EC2
-        uses: appleboy/ssh-action@v0.1.8
+      - name: Run application on EC2
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            set +e  
-            
-            APP_DIR=/home/${{ secrets.EC2_USERNAME }}/app
-            TARGET_JAR=g25Server.jar
-
-            echo "Stop existing jar"
-            pkill -f 'java -jar' 
-            PKILL_STATUS=$?
-
-            if [ "$PKILL_STATUS" -eq 0 ]; then
-            echo "기존 프로세스 정상 종료 (pkill 0)"
-            elif [ "$PKILL_STATUS" -eq 143 ]; then
-            echo "정상 종료된 프로세스 (SIGTERM - 143) "
-            else
-            echo "종료할 프로세스 없음 또는 다른 상태 ($PKILL_STATUS)"
-            fi
-
-
-            echo "stop existing process"
-            for s in {1..30}; do
-              if pgrep -f 'java -jar' > /dev/null; then
-                sleep 1
-              else
-                break
-              fi
-            done
-
-            echo "Removing old JARs"
-            rm -f $APP_DIR/*.jar
-
-            echo "Starting new application"
-            nohup java -jar $APP_DIR/$TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
-            sleep 2
-      
-
-            echo "Checking Java process"
-            pgrep -fl 'java -jar' || echo "실패"
-      
-            echo "✅ 배포 완료"
-            exit 0
-
+            pkill -f 'java -jar' || true
+            nohup java -jar /home/${{ secrets.EC2_USER }}/app/*.jar > /home/${{ secrets.EC2_USER }}/app/app.log 2>&1 &
