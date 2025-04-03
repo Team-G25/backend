@@ -22,11 +22,6 @@ jobs:
           chmod +x gradlew
           ./gradlew clean build -x test
 
-      - name: Set artifact
-        id: set-artifact
-        run: |
-          ARTIFACT_NAME=$(ls ./build/libs/*.jar | grep -v 'plain' | head -n 1 | xargs basename)
-          echo "artifact=$ARTIFACT_NAME" >> $GITHUB_ENV
 
       - name: Upload JAR to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -34,7 +29,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "./build/libs/${{ env.artifact }}"
+          source: "./build/libs/g25Server.jar"
           target: "/home/${{ secrets.EC2_USERNAME }}/app"
 
       - name: Run jar on EC2
@@ -47,31 +42,26 @@ jobs:
             set +e  
             
             APP_DIR=/home/${{ secrets.EC2_USERNAME }}/app
-            JAR_NAME=${{ env.artifact }}
-            TARGET_JAR=$APP_DIR/g25Server.jar
+            TARGET_JAR=g25Server.jar
 
             echo "Stop existing jar"
             pkill -f 'java -jar' 
             PKILL_STATUS=$?
 
-
             if [ "$PKILL_STATUS" -eq 0 ]; then
-            echo "✅ 기존 프로세스 정상 종료 (pkill 0) ✅"
+            echo "기존 프로세스 정상 종료 (pkill 0)"
             elif [ "$PKILL_STATUS" -eq 143 ]; then
-            echo "✅ 정상 종료된 프로세스 (SIGTERM - 143) ✅"
+            echo "정상 종료된 프로세스 (SIGTERM - 143) "
             else
-            echo "ℹ️ 종료할 프로세스 없음 또는 다른 상태 ($PKILL_STATUS)"
+            echo "종료할 프로세스 없음 또는 다른 상태 ($PKILL_STATUS)"
             fi
-
 
 
             echo "stop existing process"
             for s in {1..30}; do
               if pgrep -f 'java -jar' > /dev/null; then
-                echo "running 00:$s"
                 sleep 1
               else
-                echo "error occurs"
                 break
               fi
             done
@@ -79,13 +69,11 @@ jobs:
             echo "Removing old JARs"
             rm -f $APP_DIR/*.jar
 
-            echo "Rename JAR"
-            mv $APP_DIR/$JAR_NAME $TARGET_JAR
-        
             echo "Starting new application"
-            nohup java -jar $TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
+            nohup java -jar $APP_DIR/$TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
             sleep 2
       
+
             echo "Checking Java process"
             pgrep -fl 'java -jar' || echo "실패"
       
