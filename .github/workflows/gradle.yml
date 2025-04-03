@@ -41,36 +41,48 @@ jobs:
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            APP_DIR=/home/${{ secrets.EC2_USERNAME }}/app
-            JAR_NAME=${{ env.artifact }}
+            set +e  
+        
+            APP_DIR=/home/ubuntu/app
+            JAR_NAME=g25Server.jar
             TARGET_JAR=$APP_DIR/g25Server.jar
-
-            echo "Stop existing jar"
-            pkill -f 'java -jar' || echo "no jar found"
-
-            echo "stop existing process"
-            for s in {1..30}; do
+            
+            echo "🛑 Stop existing jar"
+            pkill -f 'java -jar'
+            PKILL_STATUS=$?
+            
+            if [ "$PKILL_STATUS" -eq 0 ]; then
+              echo "✅ 기존 프로세스 정상 종료 (pkill 0)"
+            elif [ "$PKILL_STATUS" -eq 143 ]; then
+              echo "✅ 정상 종료된 프로세스 (SIGTERM - 143)"
+            else
+              echo "ℹ️ 종료할 프로세스 없음 또는 기타 상태 ($PKILL_STATUS)"
+            fi
+            
+            echo "⏳ Waiting for process to stop..."
+            for s in {1..50}; do
               if pgrep -f 'java -jar' > /dev/null; then
-                echo "running 00:$s"
+                echo "⏳ still running 00:$s"
                 sleep 1
               else
-                echo "error occurs"
+                echo "✅ 프로세스 완전히 종료됨"
                 break
               fi
             done
-
-            echo "Removing old JARs"
-            rm -f $APP_DIR/g25Server.jar
             
-            echo "Starting new application"
-            nohup java -jar $JAR_NAME > $APP_DIR/nohup.out 2>&1 &
-            sleep 2
+            echo "🧹 Removing old JARs"
+            rm -f $APP_DIR/*.jar
             
-            echo "Checking Java process"
-            pgrep -fl 'java -jar' || echo "실패"
             
-            echo "✅ 배포 완료"
+            echo "🚀 Starting new application"
+            nohup java -jar $TARGET_JAR > $APP_DIR/nohup.out 2>&1 &
+            sleep 20
+            
+            echo "🔍 Checking Java process"
+            pgrep -fl 'java -jar' && echo "✅ 실행 중" || echo "⚠️ 실행 안됨"
+            
+            echo "🎉 배포 완료"
             exit 0
