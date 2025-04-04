@@ -46,9 +46,14 @@ jobs:
       - name: Copy script
         run: cp ./script/*.sh ./bundle
 
+#      - name: Make zip file
+#        run: zip -r ./mailer.zip ./bundle
+#        shell: bash
       - name: Make zip file
-        run: zip -r ./mailer.zip ./bundle
-        shell: bash
+        run: |
+          cd bundle
+          zip -r ../mailer.zip . 
+          cd ..
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
