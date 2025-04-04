@@ -36,7 +36,7 @@ jobs:
 
       # Jar 파일 복사
       - name: Copy Jar
-        run: cp ./build/libs/*.jar ./deploy
+        run: cp ./build/libs/g25Server.jar ./deploy
 
       # appspec.yml 파일 복사
       - name: Copy appspec.yml
@@ -44,7 +44,7 @@ jobs:
 
       # script files 복사
       - name: Copy script
-        run: cp ./script/*.sh ./deploy
+        run: cp ./script/deploy.sh ./deploy
 
 
       - name: Make zip file
