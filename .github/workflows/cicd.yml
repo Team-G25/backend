@@ -44,7 +44,7 @@ jobs:
 
       # script files 복사
       - name: Copy script
-        run: cp ./script/deploy.sh ./bundle
+        run: cp ./script/*.sh ./bundle
 
       - name: Make zip file
         run: zip -r ./mailer.zip ./bundle
