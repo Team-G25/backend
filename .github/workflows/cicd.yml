@@ -44,16 +44,12 @@ jobs:
 
       # script files 복사
       - name: Copy script
-        run: cp deploy.sh ./bundle
+        run: cp ./script/deploy.sh ./bundle
 
-#      - name: Make zip file
-#        run: zip -r ./mailer.zip ./bundle
-#        shell: bash
       - name: Make zip file
-        run: |
-          cd bundle
-          zip -r ../mailer.zip . 
-          cd ..
+        run: zip -r ./mailer.zip ./bundle
+        shell: bash
+
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -72,8 +68,8 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws deploy create-deployment \
-          --application-name g25mailer \
-          --deployment-group-name g25 \
+          --application-name g25mailerletsgo \
+          --deployment-group-name g25mailer \
           --file-exists-behavior OVERWRITE \
           --s3-location bucket=mailractionsbucket,bundleType=zip,key=mailer.zip \
           --region ap-northeast-2
