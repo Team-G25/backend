@@ -48,9 +48,9 @@ jobs:
 
 
       # application.yml 복사 (from secret at githubactions)
-      - name: Decode application.yml
-        run: |
-          echo "${{ secrets.APP_YML_BASE64 }}" | base64 -d > ./bundle
+#      - name: Decode application.yml
+#        run: |
+#          echo "${{ secrets.APP_YML_BASE64 }}" | base64 -d > ./bundle
 
 
       - name: Make zip file
