@@ -57,6 +57,8 @@ dependencies {
 	//swagger
 	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.2.0'
 
+	//logback - slack
+	implementation 'com.github.maricn:logback-slack-appender:1.4.0'
 
 
 
