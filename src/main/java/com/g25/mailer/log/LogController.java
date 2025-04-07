@@ -15,13 +15,13 @@ public class LogController {
     public String logTest(){
         String name = "spring";
 
-        log.error("error log={}",name);
-        log.warn("warn log={}",name);
-        log.info("info log={}",name);
-        log.debug("debug log={}",name);
-        log.trace("trace log={}",name);
+        log.error("❌error log={}",name);
+        log.warn("🥵warn log={}",name);
+        log.info("🥑info log={}",name);
+        log.debug("☠️debug log={}",name);
+        log.trace("🐭trace log={}",name);
 
-        return "ok";
+        return "로그 테스트 완료!";
     }
 
 }

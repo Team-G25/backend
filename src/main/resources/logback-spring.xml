@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+
 <configuration>
     <timestamp key="BY_DATE" datePattern="yyyy-MM-dd"/>
     <property name="LOG_PATTERN"
               value="[%d{yyyy-MM-dd HH:mm:ss}:%-4relative] %green([%thread]) %highlight(%-5level) %boldWhite([%C.%M:%yellow(%L)]) - %msg%n"/>
 
+    <!-- 개발/로컬 환경 -->
     <springProfile name="!prod">
         <include resource="console-appender.xml"/>
 
-        <root level="INFO">
+        <!-- com.g25 패키지만 DEBUG 로그 출력 -->
+        <logger name="com.g25" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+
+        <!-- 그 외 전체는 WARN 이상만 출력 -->
+        <root level="WARN">
             <appender-ref ref="CONSOLE"/>
         </root>
     </springProfile>
 
+    <!-- 운영 환경 -->
     <springProfile name="prod">
         <include resource="file-info-appender.xml"/>
         <include resource="file-warn-appender.xml"/>
@@ -24,4 +33,6 @@
             <appender-ref ref="FILE-ERROR"/>
         </root>
     </springProfile>
+
+
 </configuration>
