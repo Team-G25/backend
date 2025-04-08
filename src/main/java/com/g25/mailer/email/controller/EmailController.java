@@ -31,6 +31,7 @@ import java.util.List;
  */
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/mail")
 @RequiredArgsConstructor
 @Slf4j
