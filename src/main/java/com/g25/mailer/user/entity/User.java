@@ -56,11 +56,31 @@ public class User implements UserDetails {
         return email;
     }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
 
     //다크, 기본 모드 설정
     public enum Theme {
         LIGHT,
         DARK
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // 또는 계정 활성 상태에 따라 로직 정의
     }
 
 }

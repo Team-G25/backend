@@ -68,15 +68,15 @@ jobs:
       - name: Upload to S3
         run: aws s3 cp --region ap-northeast-2 ./mailer.zip s3://$S3_BUCKET_NAME/
 
-      # Deploy
-      - name: Deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          aws deploy create-deployment \
-          --application-name g25mailerletsgo \
-          --deployment-group-name g25mailer \
-          --file-exists-behavior OVERWRITE \
-          --s3-location bucket=mailractionsbucket,bundleType=zip,key=mailer.zip \
-          --region ap-northeast-2
+#      # Deploy
+#      - name: Deploy
+#        env:
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#        run: |
+#          aws deploy create-deployment \
+#          --application-name g25mailerletsgo \
+#          --deployment-group-name g25mailer \
+#          --file-exists-behavior OVERWRITE \
+#          --s3-location bucket=mailractionsbucket,bundleType=zip,key=mailer.zip \
+#          --region ap-northeast-2
