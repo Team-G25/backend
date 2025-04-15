@@ -4,27 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Logger;
 import feign.Request;
 import feign.codec.Decoder;
-import feign.optionals.OptionalDecoder;
-import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
-//import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
-//import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
-import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
-import org.springframework.cloud.openfeign.FeignAutoConfiguration;
-import org.springframework.cloud.openfeign.support.ResponseEntityDecoder;
-import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
 
 @Configuration
-@ImportAutoConfiguration({FeignAutoConfiguration.class})
 public class GptFeignConfig {
 
     @Bean

@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.Map;
 
-@FeignClient(name = "gptClient", url = "${openai.url}", configuration = GptFeignConfig.class)
+@FeignClient(
+        name = "gptClient",
+        url = "${gpt.url}",
+        configuration = GptFeignConfig.class
+)
 public interface GptClient {
 
     @PostMapping(value = "/v1/chat/completions", consumes = "application/json")

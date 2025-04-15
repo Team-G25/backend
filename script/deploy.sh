@@ -17,4 +17,4 @@ fi
 echo ">>> Starting $JAR_NAME"
 cd $APP_DIR
 chmod +x $JAR_NAME
-nohup java -jar -Duser.timezone=Asia/Seoul $JAR_NAME > nohup.out 2>&1 &
+nohup java -jar -Duser.timezone=Asia/Seoul $JAR_NAME --spring.profiles.active=dev > nohup.out 2>&1 &

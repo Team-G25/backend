@@ -16,7 +16,7 @@ public class EmailAiService {
 
     private final GptClient gptClient;
 
-    @Value("${openai.api-key}")
+    @Value("${gpt.api-key}")
     private String apiKey;
 
     // 자동생성
