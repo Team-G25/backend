@@ -3,7 +3,6 @@ package com.g25.mailer.aiMail.gpt;
 import com.g25.mailer.aiMail.dto.GptResponse;
 import com.g25.mailer.config.GptFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
