@@ -29,7 +29,8 @@ public class TemplateService {
     private final EmailService emailService;
 
     /**
-     * 템플릿 조회
+     * 수정완료 Version2
+     * 템플릿 조회(불러오기)
      * @param targetName
      * @param keyword1
      * @param keyword2
@@ -42,16 +43,23 @@ public class TemplateService {
         Keyword key1 = keywordRepository.findByKeyword(keyword1)
                 .orElseThrow(() -> new IllegalArgumentException("No Keyword: " + keyword1));
 
-        String key2 = (keyword2 != null && !keyword2.isEmpty())
-                ? keywordRepository.findByKeyword(keyword2).map(Keyword::getKeyword).orElse(null)
-                : null;
+        List<Template> templates;
 
-        List<Template> templates = templateRepository.findByTargetAndKeyword1AndKeyword2(target, key1.getKeyword(), key2);
+        if (keyword2 == null || keyword2.isBlank()) {
+            templates = templateRepository.findByTargetAndKeyword1AndKeyword2IsNull(target, key1.getKeyword());
+        } else {
+            Keyword key2 = keywordRepository.findByKeyword(keyword2)
+                    .orElseThrow(() -> new IllegalArgumentException("No Keyword: " + keyword2));
+
+            templates = templateRepository.findByTargetAndKeyword1AndKeyword2Equals(target, key1.getKeyword(), key2.getKeyword());
+        }
 
         return templates.stream()
                 .map(t -> new TemplateResponse(t.getTitle(), t.getContent(), t.getTarget(), t.getKeyword1(), t.getKeyword2()))
                 .toList();
     }
+
+
 
 
     /**

@@ -55,7 +55,7 @@ INSERT INTO templates (title, content, target_id, keyword1_id, keyword2_id) VALU
         [이름] 드림.',
         (SELECT id FROM targets WHERE target_name = '학생' LIMIT 1),
         (SELECT id FROM keywords WHERE keyword = '출결처리' LIMIT 1),
-        (SELECT id FROM keywords WHERE keyword = '출석 확인' LIMIT 1)
+        (SELECT id FROM keywords WHERE keyword = '출석확인' LIMIT 1)
     ),
     (
         '[성적 관련 문의] 기말고사 성적 확인 및 채점 정정 요청',
@@ -111,7 +111,7 @@ INSERT INTO templates (title, content, target_id, keyword1_id, keyword2_id) VALU
         [보내는 사람 이름] 드림.',
         (SELECT id FROM targets WHERE target_name = '직장인' LIMIT 1),
         (SELECT id FROM keywords WHERE keyword = '동료' LIMIT 1),
-        (SELECT id FROM keywords WHERE keyword = '업무 확인' LIMIT 1)
+        (SELECT id FROM keywords WHERE keyword = '업무확인' LIMIT 1)
     ),
     (
         '[출장 경비 정산 요청] 비용 청구 및 처리 요청',
@@ -128,7 +128,7 @@ INSERT INTO templates (title, content, target_id, keyword1_id, keyword2_id) VALU
         [보내는 사람 이름] 드림.',
         (SELECT id FROM targets WHERE target_name = '직장인' LIMIT 1),
         (SELECT id FROM keywords WHERE keyword = '상사' LIMIT 1),
-        (SELECT id FROM keywords WHERE keyword = '비용 청구' LIMIT 1)
+        (SELECT id FROM keywords WHERE keyword = '비용청구' LIMIT 1)
     ),
     (
         '[회의 요청] 팀 미팅 일정 조율 및 아젠다 공유',
@@ -149,7 +149,7 @@ INSERT INTO templates (title, content, target_id, keyword1_id, keyword2_id) VALU
         [보내는 사람 이름] 드림.',
         (SELECT id FROM targets WHERE target_name = '직장인' LIMIT 1),
         (SELECT id FROM keywords WHERE keyword = '동료' LIMIT 1),
-        (SELECT id FROM keywords WHERE keyword = '회의 요청' LIMIT 1)
+        (SELECT id FROM keywords WHERE keyword = '회의요청' LIMIT 1)
     ),
     (
         '[휴가 신청 요청] 연차 휴가 일정 승인 요청',

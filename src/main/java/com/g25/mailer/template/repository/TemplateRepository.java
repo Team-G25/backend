@@ -12,12 +12,28 @@ import java.util.List;
 
 @Repository
 public interface TemplateRepository extends JpaRepository<Template, Long> {
-    @Query("SELECT t FROM Template t WHERE t.target.targetName = :targetName AND t.keyword1.keyword = :keyword1 AND t.keyword2.keyword = :keyword2")
-    List<Template> findByTargetAndKeyword1AndKeyword2(Target target, Keyword keyword1, Keyword keyword2);
+    /**
+     * 수정완료 version2
+     * @param target
+     * @param keyword1
+     * @param keyword2
+     * @return
+     */
+    @Query("SELECT t FROM Template t WHERE t.target = :target AND t.keyword1.keyword = :keyword1 AND t.keyword2.keyword = :keyword2")
+    List<Template> findByTargetAndKeyword1AndKeyword2Equals(
+            @Param("target") Target target,
+            @Param("keyword1") String keyword1,
+            @Param("keyword2") String keyword2
+    );
+
+    @Query("SELECT t FROM Template t WHERE t.target = :target AND t.keyword1.keyword = :keyword1 AND t.keyword2 IS NULL")
+    List<Template> findByTargetAndKeyword1AndKeyword2IsNull(
+            @Param("target") Target target,
+            @Param("keyword1") String keyword1
+    );
 
 
-    @Query("SELECT t FROM Template t WHERE t.target = :target AND t.keyword1.keyword = :keyword1 AND (:keyword2 IS NULL OR t.keyword2.keyword = :keyword2)")
-    List<Template> findByTargetAndKeyword1AndKeyword2(@Param("target") Target target, @Param("keyword1") String keyword1, @Param("keyword2") String keyword2);
+
 }
 
 
