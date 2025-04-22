@@ -17,10 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-
-/**
- * 구현중입니다.
- */
 @Slf4j
 @Service
 @Transactional(readOnly = true)

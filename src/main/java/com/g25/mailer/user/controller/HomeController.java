@@ -27,13 +27,8 @@ public class HomeController {
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
-    @Value("${name}")
-    private String name;
-
-
     @GetMapping("/")
     public String home() {
-        logger.info(name);
         return "<pre style='font-family: monospace; font-size: 14px;'>" +
                 " __     __   ______   __       ______   ______   __    __   ______      ______  ______    \n" +
                 "/\\ \\  _ \\ \\ /\\  ___\\ /\\ \\     /\\  ___\\ /\\  __ \\ /\\ \"-./  \\ /\\  ___\\    /\\__  _\\/\\  __ \\   \n" +

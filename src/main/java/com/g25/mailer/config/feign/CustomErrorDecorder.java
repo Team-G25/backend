@@ -20,6 +20,4 @@ public class CustomErrorDecorder implements ErrorDecoder {
         }
         return new RuntimeException("GPT 미상의 오류 : " + status);
     }
-
-
 }
