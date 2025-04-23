@@ -8,9 +8,12 @@ import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
+import static com.g25.mailer.common.CommonResponse.*;
 
 @Slf4j
 @CrossOrigin(origins = "http://localhost:5173")
@@ -37,28 +40,20 @@ public class TemplateController {
     }
 
 
-    /**
-     * 템플릿 수정 후 이메일 전송
-     * @param request
-     * @return
-     * @throws MessagingException
-     */
+
     @PostMapping("/update-and-send")
     public ResponseEntity<CommonResponse<String>> updateAndSendEmail(@Valid @RequestBody SendTemplateRequest request) {
         try {
             templateService.sendEmailTemplate(request);
+            return ResponseEntity.ok(success("템플릿 메일 전송 완료"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(CommonResponse.fail("잘못된 요청: " + e.getMessage()));
         } catch (MessagingException e) {
-            throw new RuntimeException(e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponse.fail("메일 전송 실패"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponse.fail("서버 오류: " + e.getMessage()));
         }
-        return ResponseEntity.ok(CommonResponse.success("템플릿 메일 전송 완료"));
     }
-
-
-
-    /**
-     * 템플릿 수정후 임시저장(?)
-     */
-
 
 
 
