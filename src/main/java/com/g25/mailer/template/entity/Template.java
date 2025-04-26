@@ -39,4 +39,8 @@ public class Template {
     @JoinColumn(name = "keyword2_id", nullable = true)
     @ToString.Exclude
     private Keyword keyword2; //세부키워드
+
+    public Object getTargetName() {
+        return target;
+    }
 }

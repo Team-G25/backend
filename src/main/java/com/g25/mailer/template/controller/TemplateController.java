@@ -40,12 +40,29 @@ public class TemplateController {
     }
 
 
-
+    /**
+     * 템플릿 조회 + 수정 + 메일 전송
+     */
     @PostMapping("/update-and-send")
     public ResponseEntity<CommonResponse<String>> updateAndSendEmail(@Valid @RequestBody SendTemplateRequest request) {
         try {
-            templateService.sendEmailTemplate(request);
+            // 1. 템플릿 조회
+            TemplateResponse template = templateService.getTemplateById(request.getTemplateId());
+
+            // 2. 템플릿 수정
+            TemplateResponse modifiedTemplate = templateService.modifyTemplate(template, request);
+
+            // 3. 메일 전송
+            templateService.sendModifiedTemplate(
+                    request.getFrom(),
+                    request.getRecipientEmail(),
+                    modifiedTemplate.getTitle(),
+                    modifiedTemplate.getContent(),
+                    (request.getAttachmentKeys() != null) ? request.getAttachmentKeys() : List.of()
+            );
+
             return ResponseEntity.ok(success("템플릿 메일 전송 완료"));
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(CommonResponse.fail("잘못된 요청: " + e.getMessage()));
         } catch (MessagingException e) {

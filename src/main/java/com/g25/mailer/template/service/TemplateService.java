@@ -25,17 +25,8 @@ public class TemplateService {
     private final TemplateRepository templateRepository;
     private final KeywordRepository keywordRepository;
     private final TargetRepository targetRepository;
-
     private final EmailService emailService;
 
-    /**
-     * 수정완료 Version2
-     * 템플릿 조회(불러오기)
-     * @param targetName
-     * @param keyword1
-     * @param keyword2
-     * @return
-     */
     public List<TemplateResponse> getTemplates(String targetName, String keyword1, String keyword2) {
         Target target = targetRepository.findByTargetName(targetName)
                 .orElseThrow(() -> new IllegalArgumentException("No Target: " + targetName));
@@ -44,7 +35,6 @@ public class TemplateService {
                 .orElseThrow(() -> new IllegalArgumentException("No Keyword: " + keyword1));
 
         List<Template> templates;
-
         if (keyword2 == null || keyword2.isBlank()) {
             templates = templateRepository.findByTargetAndKeyword1AndKeyword2IsNull(target, key1.getKeyword());
         } else {
@@ -55,57 +45,47 @@ public class TemplateService {
         }
 
         return templates.stream()
-                .map(t -> new TemplateResponse(t.getTitle(), t.getContent(), t.getTarget(), t.getKeyword1(), t.getKeyword2()))
+                .map(t -> new TemplateResponse(
+                        t.getTitle(),
+                        t.getContent(),
+                        t.getTarget().getTargetName(),         // 여기!
+                        t.getKeyword1().getKeyword(),
+                        (t.getKeyword2() != null) ? t.getKeyword2().getKeyword() : "없음"
+                ))
                 .toList();
     }
 
 
-
+    /**
+     * 단일 템플릿 조회
+     */
+    public TemplateResponse getTemplateById(Long templateId) {
+        Template template = templateRepository.findById(templateId)
+                .orElseThrow(() -> new IllegalArgumentException("조회되는 템플릿이 없습니다."));
+        return new TemplateResponse(template);
+    }
 
     /**
-     * 템플릿조회 + 사용자커스텀 + 이메일 송신
-     *  1. 첨부파일유무에 따라 emailService에서 분기
-     * @param request
-     * @throws MessagingException
+     * 템플릿 커스텀 수정
      */
-    public void sendEmailTemplate(SendTemplateRequest request) throws MessagingException {
-        Template template = templateRepository.findById(request.getTemplateId())
-                .orElseThrow(() -> new IllegalArgumentException("조회되는 템플릿이 없습니다."));
+    public TemplateResponse modifyTemplate(TemplateResponse template, SendTemplateRequest request) {
+        String title = isNotBlank(request.getCustomTitle()) ? request.getCustomTitle() : template.getTitle();
+        String content = isNotBlank(request.getCustomContent()) ? request.getCustomContent() : template.getContent();
+        return new TemplateResponse(title, content, template.getTargetName(), template.getKeyword1(), template.getKeyword2());
+    }
 
-        //제목,내용 수정할 경우 변경 반영
-        String finalTitle = (request.getCustomTitle() != null && !request.getCustomTitle().isBlank())
-                ? request.getCustomTitle()
-                : template.getTitle();
-
-        String finalContent = (request.getCustomContent() != null && !request.getCustomContent().isBlank())
-                ? request.getCustomContent()
-                : template.getContent();
-
-        // 첨부파일유뮤에 따라 있으면 fileKeys(파일명)로 초기화
-        List<String> fileKeys = (request.getAttachmentKeys() != null) ? request.getAttachmentKeys() : List.of();
-
-        if (fileKeys.isEmpty()) {
-            emailService.sendSimpleMail(
-                    request.getTo(),
-                    finalTitle,
-                    finalContent,
-                    request.getFrom()
-            );
+    /**
+     * 수정된 템플릿 메일 전송
+     */
+    public void sendModifiedTemplate(String from, String to, String title, String content, List<String> attachmentKeys) throws MessagingException {
+        if (attachmentKeys == null || attachmentKeys.isEmpty()) {
+            emailService.sendSimpleMail(to, title, content, from);
         } else {
-            emailService.sendMailWithAttachment(
-                    request.getTo(),
-                    finalTitle,
-                    finalContent,
-                    request.getFrom(),
-                    fileKeys
-            );
+            emailService.sendMailWithAttachment(to, title, content, from, attachmentKeys);
         }
     }
 
-
-
-
-
-
-
+    private boolean isNotBlank(String str) {
+        return str != null && !str.isBlank();
+    }
 }
