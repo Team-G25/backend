@@ -2,6 +2,7 @@ package com.g25.mailer.template.controller;
 
 import com.g25.mailer.common.CommonResponse;
 import com.g25.mailer.template.dto.*;
+import com.g25.mailer.template.service.CustomizedTemplateService;
 import com.g25.mailer.template.service.TemplateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 public class TemplateController {
 
     private final TemplateService templateService;
+    private final CustomizedTemplateService customizedTemplateService;
 
     /**
      * 템플릿 리스트 조회
@@ -53,6 +55,19 @@ public class TemplateController {
     public ResponseEntity<AiRefineCustomResponse> aiRefineCustom(@RequestBody AiRefineCustomRequest request) {
         String refinedContent = templateService.refineCustomContent(request.getCustomContent());
         return ResponseEntity.ok(new AiRefineCustomResponse(refinedContent));
+    }
+
+
+    /**
+     * 작성중인 템플릿을 최종 확정(FINAL) 처리
+     */
+    @PostMapping("/customize/confirm")
+    public ResponseEntity<CommonResponse<String>> confirmFinalCustomizedTemplate(
+            @RequestParam Long userId,
+            @RequestParam Long templateId) {
+
+        customizedTemplateService.confirmFinalCustomizedTemplate(userId, templateId);
+        return ResponseEntity.ok(CommonResponse.success("커스터마이징 템플릿 최종 확정 완료"));
     }
 
     /**

@@ -13,4 +13,6 @@ public class CustomizeTemplateRequest {
     private Long templateId;
     private String customTitle;
     private String customContent;
+    private Long userId;
+
 }

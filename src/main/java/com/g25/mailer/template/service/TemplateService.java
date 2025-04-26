@@ -6,9 +6,11 @@ import com.g25.mailer.template.dto.ConfirmFinalRequest;
 import com.g25.mailer.template.dto.CustomizeTemplateRequest;
 import com.g25.mailer.template.dto.SendTemplateRequest;
 import com.g25.mailer.template.dto.TemplateResponse;
+import com.g25.mailer.template.entity.CustomizedTemplate;
 import com.g25.mailer.template.entity.Keyword;
 import com.g25.mailer.template.entity.Target;
 import com.g25.mailer.template.entity.Template;
+import com.g25.mailer.template.repository.CustomizedTemplateRepository;
 import com.g25.mailer.template.repository.KeywordRepository;
 import com.g25.mailer.template.repository.TargetRepository;
 import com.g25.mailer.template.repository.TemplateRepository;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -30,6 +33,7 @@ public class TemplateService {
     private final TargetRepository targetRepository;
     private final EmailService emailService;
     private final EmailAiService emailAiService;
+    private final CustomizedTemplateRepository customizedTemplateRepository;
 
 
     /**
@@ -89,9 +93,35 @@ public class TemplateService {
     /**
      * 수정본을 저장 (현재는 저장로직 없음, 필요 시 추가)
      */
+    @Transactional
     public void saveCustomizedTemplate(CustomizeTemplateRequest request) {
-        // TODO: 필요 시 DB 저장 구현 가능
-        log.info("사용자 수정 저장 요청: title = {}, content = {}", request.getCustomTitle(), request.getCustomContent());
+        CustomizedTemplate customizedTemplate = customizedTemplateRepository
+                .findByTemplateIdAndUserIdAndStatus(request.getTemplateId(), request.getUserId(), "DRAFT")
+                .orElse(null);
+
+        if (customizedTemplate != null) {
+            // 기존 임시 저장본 있으면 수정
+            customizedTemplate.setCustomTitle(request.getCustomTitle());
+            customizedTemplate.setCustomContent(request.getCustomContent());
+            customizedTemplate.setCreatedAt(LocalDateTime.now());
+
+            customizedTemplateRepository.save(customizedTemplate);
+            log.info("기존 임시 저장본 업데이트 완료: id = {}, title = {}", customizedTemplate.getId(), customizedTemplate.getCustomTitle());
+        } else {
+            // 없으면 새로 저장
+            CustomizedTemplate newTemplate = new CustomizedTemplate();
+            newTemplate.setTemplateId(request.getTemplateId());
+            newTemplate.setCustomTitle(request.getCustomTitle());
+            newTemplate.setCustomContent(request.getCustomContent());
+            newTemplate.setUserId(request.getUserId());
+            newTemplate.setStatus("DRAFT");
+            newTemplate.setCreatedAt(LocalDateTime.now());
+
+            customizedTemplateRepository.save(newTemplate);
+            log.info("새로운 임시 저장본 저장 완료: id = {}, title = {}", newTemplate.getId(), newTemplate.getCustomTitle());
+        }
+
+        log.info("사용자 수정 저장 요청 최종 완료: title = {}, content = {}", request.getCustomTitle(), request.getCustomContent());
     }
 
 
