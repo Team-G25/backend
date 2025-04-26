@@ -1,22 +1,14 @@
 package com.g25.mailer.template.controller;
 
 import com.g25.mailer.common.CommonResponse;
-import com.g25.mailer.template.dto.SendTemplateRequest;
-import com.g25.mailer.template.dto.TemplateResponse;
+import com.g25.mailer.template.dto.*;
 import com.g25.mailer.template.service.TemplateService;
-import jakarta.mail.MessagingException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
-import static com.g25.mailer.common.CommonResponse.*;
-
-@Slf4j
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/templates")
 @RequiredArgsConstructor
@@ -25,59 +17,50 @@ public class TemplateController {
     private final TemplateService templateService;
 
     /**
-     * 템플릿 조회, 대상, 키워드1, 키워드2에 맞는 템플릿 가져온다.
-     * @param targetName,keyword1, keyword2
-     * @return
+     * 템플릿 리스트 조회
      */
     @GetMapping("/search")
     public ResponseEntity<List<TemplateResponse>> getTemplates(
             @RequestParam String targetName,
             @RequestParam String keyword1,
             @RequestParam(required = false) String keyword2) {
-
         List<TemplateResponse> templates = templateService.getTemplates(targetName, keyword1, keyword2);
         return ResponseEntity.ok(templates);
     }
 
-
     /**
-     * 템플릿 조회 + 수정 + 메일 전송
+     * 템플릿 단일 조회
      */
-    @PostMapping("/update-and-send")
-    public ResponseEntity<CommonResponse<String>> updateAndSendEmail(@Valid @RequestBody SendTemplateRequest request) {
-        try {
-            // 1. 템플릿 조회
-            TemplateResponse template = templateService.getTemplateById(request.getTemplateId());
-
-            // 2. 템플릿 수정
-            TemplateResponse modifiedTemplate = templateService.modifyTemplate(template, request);
-
-            // 3. 메일 전송
-            templateService.sendModifiedTemplate(
-                    request.getFrom(),
-                    request.getRecipientEmail(),
-                    modifiedTemplate.getTitle(),
-                    modifiedTemplate.getContent(),
-                    (request.getAttachmentKeys() != null) ? request.getAttachmentKeys() : List.of()
-            );
-
-            return ResponseEntity.ok(success("템플릿 메일 전송 완료"));
-
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(CommonResponse.fail("잘못된 요청: " + e.getMessage()));
-        } catch (MessagingException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponse.fail("메일 전송 실패"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CommonResponse.fail("서버 오류: " + e.getMessage()));
-        }
+    @GetMapping("/{templateId}")
+    public ResponseEntity<TemplateResponse> getTemplateById(@PathVariable Long templateId) {
+        TemplateResponse template = templateService.getTemplateById(templateId);
+        return ResponseEntity.ok(template);
     }
 
-
+    /**
+     * 템플릿 커스터마이징 수정 저장
+     */
+    @PostMapping("/customize")
+    public ResponseEntity<CommonResponse<String>> customizeTemplate(@RequestBody CustomizeTemplateRequest request) {
+        templateService.saveCustomizedTemplate(request);
+        return ResponseEntity.ok(CommonResponse.success("수정 저장 완료"));
+    }
 
     /**
-     * TODO 알려줄것
-     * 임시저장, 보내기 기능
-     * -> 클라이언트가...
+     * 수정된 템플릿 내용을 AI로 보정
      */
+    @PostMapping("/ai-refine-custom")
+    public ResponseEntity<AiRefineCustomResponse> aiRefineCustom(@RequestBody AiRefineCustomRequest request) {
+        String refinedContent = templateService.refineCustomContent(request.getCustomContent());
+        return ResponseEntity.ok(new AiRefineCustomResponse(refinedContent));
+    }
 
+    /**
+     * 최종 확정된 수정본으로 메일 발송
+     */
+    @PostMapping("/confirm-final")
+    public ResponseEntity<CommonResponse<String>> confirmFinal(@RequestBody ConfirmFinalRequest request) {
+        templateService.sendFinalEmail(request);
+        return ResponseEntity.ok(CommonResponse.success("AI 수정본 메일 발송 완료"));
+    }
 }

@@ -1,6 +1,9 @@
 package com.g25.mailer.template.service;
 
+import com.g25.mailer.aiMail.service.EmailAiService;
 import com.g25.mailer.email.service.EmailService;
+import com.g25.mailer.template.dto.ConfirmFinalRequest;
+import com.g25.mailer.template.dto.CustomizeTemplateRequest;
 import com.g25.mailer.template.dto.SendTemplateRequest;
 import com.g25.mailer.template.dto.TemplateResponse;
 import com.g25.mailer.template.entity.Keyword;
@@ -26,7 +29,16 @@ public class TemplateService {
     private final KeywordRepository keywordRepository;
     private final TargetRepository targetRepository;
     private final EmailService emailService;
+    private final EmailAiService emailAiService;
 
+
+    /**
+     * 템플릿조회
+     * @param targetName
+     * @param keyword1
+     * @param keyword2
+     * @return
+     */
     public List<TemplateResponse> getTemplates(String targetName, String keyword1, String keyword2) {
         Target target = targetRepository.findByTargetName(targetName)
                 .orElseThrow(() -> new IllegalArgumentException("No Target: " + targetName));
@@ -48,7 +60,7 @@ public class TemplateService {
                 .map(t -> new TemplateResponse(
                         t.getTitle(),
                         t.getContent(),
-                        t.getTarget().getTargetName(),         // 여기!
+                        t.getTarget().getTargetName(),
                         t.getKeyword1().getKeyword(),
                         (t.getKeyword2() != null) ? t.getKeyword2().getKeyword() : "없음"
                 ))
@@ -57,7 +69,7 @@ public class TemplateService {
 
 
     /**
-     * 단일 템플릿 조회
+     * 템플릿 ID로 조회
      */
     public TemplateResponse getTemplateById(Long templateId) {
         Template template = templateRepository.findById(templateId)
@@ -66,12 +78,28 @@ public class TemplateService {
     }
 
     /**
-     * 템플릿 커스텀 수정
+     * 템플릿 커스터마이징 수정
      */
     public TemplateResponse modifyTemplate(TemplateResponse template, SendTemplateRequest request) {
         String title = isNotBlank(request.getCustomTitle()) ? request.getCustomTitle() : template.getTitle();
         String content = isNotBlank(request.getCustomContent()) ? request.getCustomContent() : template.getContent();
         return new TemplateResponse(title, content, template.getTargetName(), template.getKeyword1(), template.getKeyword2());
+    }
+
+    /**
+     * 수정본을 저장 (현재는 저장로직 없음, 필요 시 추가)
+     */
+    public void saveCustomizedTemplate(CustomizeTemplateRequest request) {
+        // TODO: 필요 시 DB 저장 구현 가능
+        log.info("사용자 수정 저장 요청: title = {}, content = {}", request.getCustomTitle(), request.getCustomContent());
+    }
+
+
+    /**
+     * 사용자 수정본을 AI로 보정
+     */
+    public String refineCustomContent(String customContent) {
+        return emailAiService.refineEmailContent(customContent);
     }
 
     /**
@@ -88,4 +116,30 @@ public class TemplateService {
     private boolean isNotBlank(String str) {
         return str != null && !str.isBlank();
     }
+
+    /**
+     * 최종 확정된 수정본으로 메일 발송
+     */
+    public void sendFinalEmail(ConfirmFinalRequest request) {
+        List<String> attachmentKeys = (request.getAttachmentKeys() != null) ? request.getAttachmentKeys() : List.of();
+
+        if (attachmentKeys.isEmpty()) {
+            emailService.sendSimpleMail(
+                    request.getTo(),
+                    request.getFinalTitle(),
+                    request.getFinalContent(),
+                    request.getFrom()
+            );
+        } else {
+            emailService.sendMailWithAttachment(
+                    request.getTo(),
+                    request.getFinalTitle(),
+                    request.getFinalContent(),
+                    request.getFrom(),
+                    attachmentKeys
+            );
+        }
+    }
+
+
 }
