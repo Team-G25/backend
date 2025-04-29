@@ -4,6 +4,7 @@ import com.g25.mailer.draft.entity.TemporarySave;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -11,10 +12,10 @@ import java.time.LocalDateTime;
 public class TemporarySaveResponse {
     private Long id;
     private String content;
-    private LocalDateTime savedAt;
+    private LocalDate savedAt;
 
     // @Builder어노테이션이 이 메소드를  생성자로 쓰임
-    public TemporarySaveResponse(Long id, String content, LocalDateTime savedAt) {
+    public TemporarySaveResponse(Long id, String content, LocalDate savedAt) {
         this.id = id;
         this.content = content;
         this.savedAt = savedAt;

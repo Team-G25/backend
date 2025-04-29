@@ -4,6 +4,7 @@ import com.g25.mailer.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,10 +32,10 @@ public class TemporarySave {
     private String content;
 
     @Column(name = "saved_at", nullable = false)
-    private LocalDateTime savedAt;
+    private LocalDate savedAt;
 
     @PrePersist
     protected void onCreate() {
-        this.savedAt = LocalDateTime.now();
+        this.savedAt = LocalDateTime.now().toLocalDate();
     }
 }
