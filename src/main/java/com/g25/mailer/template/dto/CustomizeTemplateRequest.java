@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "사용안함")
+@Schema(description = "템플릿메일 수정요청")
 public class CustomizeTemplateRequest {
     private Long templateId;
     private String customTitle;
