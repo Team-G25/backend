@@ -3,11 +3,15 @@ package com.g25.mailer.template.dto;
 import com.g25.mailer.template.entity.Keyword;
 import com.g25.mailer.template.entity.Target;
 import com.g25.mailer.template.entity.Template;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.Optional;
 
 @Getter
+@Schema(description = "템플릿 조회 응답")
 public class TemplateResponse {
     private final String title;
     private final String content;
