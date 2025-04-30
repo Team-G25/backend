@@ -60,14 +60,9 @@ public class TemplateService {
             templates = templateRepository.findByTargetAndKeyword1AndKeyword2Equals(target, key1.getKeyword(), key2.getKeyword());
         }
 
+        // 생성자 재사용
         return templates.stream()
-                .map(t -> new TemplateResponse(
-                        t.getTitle(),
-                        t.getContent(),
-                        t.getTarget().getTargetName(),
-                        t.getKeyword1().getKeyword(),
-                        (t.getKeyword2() != null) ? t.getKeyword2().getKeyword() : "없음"
-                ))
+                .map(TemplateResponse::new)
                 .toList();
     }
 
@@ -87,7 +82,15 @@ public class TemplateService {
     public TemplateResponse modifyTemplate(TemplateResponse template, SendTemplateRequest request) {
         String title = isNotBlank(request.getCustomTitle()) ? request.getCustomTitle() : template.getTitle();
         String content = isNotBlank(request.getCustomContent()) ? request.getCustomContent() : template.getContent();
-        return new TemplateResponse(title, content, template.getTargetName(), template.getKeyword1(), template.getKeyword2());
+
+        return new TemplateResponse(
+                template.getTemplateId(),
+                title,
+                content,
+                template.getTargetName(),
+                template.getKeyword1(),
+                template.getKeyword2()
+        );
     }
 
     /**
