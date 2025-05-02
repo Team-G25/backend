@@ -20,6 +20,7 @@ public class CustomizedTemplate {
 
     private String customTitle;
 
+    @Column(columnDefinition = "LONGTEXT") // 입력데이터크기확대
     @Lob
     private String customContent;
 
