@@ -80,6 +80,25 @@ INSERT INTO templates (title, content, target_id, keyword1_id, keyword2_id) VALU
         (SELECT id FROM keywords WHERE keyword = '결석' LIMIT 1)
     ),
     (
+        '[출결 관련 문의] 출석 확인 요청 및 증빙 문서 문의',
+        '안녕하세요 교수님,
+
+        저는 [이름]입니다. [날짜] 진행된 [과목명] 수업 출석 상태와 관련해 긴급히 확인 요청드립니다.
+        저는 해당 수업에 정상적으로 참석하였음에도 출석이 누락된 것으로 확인되어 매우 당혹스러운 상황입니다.
+
+        대리 출석과 같은 부정행위는 결코 없었음을 명확히 말씀드리며, 필요시 출석을 증명할 자료(예: 수업 참여 화면, 자료, 메모 등)도 즉시 제출하겠습니다.
+        빠른 정정과 정확한 출석 기록 반영을 강력히 요청드리며, 정정 절차와 필요자료가 무엇인지 안내해 주시면 신속히 대응하겠습니다.
+
+        빠른 확인과 회신 부탁드리며, 바쁘신 와중에도 처리해 주셔서 감사드립니다.
+
+        감사합니다.
+
+        [이름] 드림',
+        (SELECT id FROM targets WHERE target_name = '학생' LIMIT 1),
+        (SELECT id FROM keywords WHERE keyword = '출결문의' LIMIT 1),
+        (SELECT id FROM keywords WHERE keyword = '출석확인' LIMIT 1)
+    ),
+    (
         '[성적 관련 문의] [과목명] 성적 정정 요청',
         '안녕하세요 교수님,
 
