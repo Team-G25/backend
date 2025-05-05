@@ -4,6 +4,12 @@ import com.g25.mailer.common.CommonResponse;
 import com.g25.mailer.user.dto.UserProfileResponse;
 import com.g25.mailer.user.entity.User;
 import com.g25.mailer.user.repository.UserRepository;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 //import org.apache.logging.log4j.Logger;
@@ -26,7 +32,7 @@ public class HomeController {
 
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(HomeController.class);
-
+    @Hidden
     @GetMapping("/")
     public String home() {
         return "<pre style='font-family: monospace; font-size: 14px;'>" +
@@ -48,12 +54,19 @@ public class HomeController {
     }
 
 
+
     /**
      * 유저 이미지, 닉네임(이름) 받아오기
      * @param session
      * @return
      */
     @GetMapping("/profile")
+    @Operation(summary = "유저 프로필 조회", description = "세션에 저장된 userId로 유저의 닉네임과 프로필 이미지를 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "유저 프로필 조회 성공",
+                    content = @Content(schema = @Schema(implementation = UserProfileResponse.class))),
+            @ApiResponse(responseCode = "400", description = "로그인 안됨 또는 유저 정보 없음")
+    })
     public ResponseEntity<CommonResponse<UserProfileResponse>> getUserProfile(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
 
