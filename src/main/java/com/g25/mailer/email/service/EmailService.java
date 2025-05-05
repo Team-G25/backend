@@ -47,6 +47,9 @@ public class EmailService {
             String senderEmail = (from != null) ? from : "no-reply@temporary.com"; // 송신자가 미입력시에 디폴트값
 
             helper.setFrom(senderEmail);
+            if (from != null && !from.isBlank()) {
+                helper.setReplyTo(from);
+            }
             helper.setTo(to);
             helper.setSubject(title);
             helper.setText(content, true);
