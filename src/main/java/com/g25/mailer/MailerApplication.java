@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(basePackages = "com.g25.mailer.aiMail.gpt")
 @SpringBootApplication
 public class MailerApplication {
-
+ 	//change email API
 	public static void main(String[] args) {
 		SpringApplication.run(MailerApplication.class, args);
 	}
