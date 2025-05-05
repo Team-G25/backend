@@ -50,6 +50,10 @@ public class EmailController {
             fileKeys = s3Uploader.uploadMultipleToS3(request.getAttachments(), "attachments");
         }
 
+        if (request.getTo() == null || request.getTo().isBlank()) {
+            throw new IllegalArgumentException("수신자(to) 주소가 필요합니다.");
+        }
+
         // 첨부 유무에 따라 메일 전송 방식 분기
         if (!fileKeys.isEmpty()) {
             emailService.sendMailWithAttachment(
