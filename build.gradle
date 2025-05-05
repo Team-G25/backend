@@ -75,7 +75,8 @@ dependencies {
 	//feign
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
-
+	//sendgrid(email)
+	implementation 'com.sendgrid:sendgrid-java:4.9.3'
 }
 
 

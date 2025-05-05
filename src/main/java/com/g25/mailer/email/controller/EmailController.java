@@ -3,11 +3,17 @@ package com.g25.mailer.email.controller;
 import com.g25.mailer.email.dto.EmailRequest;
 import com.g25.mailer.email.service.EmailService;
 import com.g25.mailer.common.service.S3Uploader;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
-
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,9 +46,26 @@ public class EmailController {
     private final EmailService emailService;
     private final S3Uploader s3Uploader;
 
-
     @PostMapping("/send")
-    public ResponseEntity<String> sendMail(@ModelAttribute EmailRequest request) {
+    @Operation(
+            summary = "메일 전송",
+            description = "수신자, 제목, 내용, 첨부파일을 포함한 메일을 전송합니다.\n\n"
+                    + "※ 주의: 첨부파일은 multipart/form-data로 업로드해야 합니다.\n"
+                    + "응답 코드:\n"
+                    + "- 200: 메일 전송 성공\n"
+                    + "- 500: 서버 오류 또는 SendGrid 오류"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "메일 전송 성공"),
+            @ApiResponse(responseCode = "500", description = "서버 오류 / SendGrid 오류 응답",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
+    public ResponseEntity<String> sendMail(
+            @RequestBody(description = "메일 전송 요청 데이터", required = true,
+            content = @Content(schema = @Schema(implementation = EmailRequest.class)))
+            @ModelAttribute EmailRequest request) {
+
         List<String> fileKeys = new ArrayList<>();
 
         //첨부파일이 있는 경우 S3 업로드
@@ -79,6 +102,8 @@ public class EmailController {
 
         return ResponseEntity.ok("메일 전송 완료");
     }
+
+
 
 
 
