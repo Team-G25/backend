@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 //import org.apache.logging.log4j.Logger;
@@ -28,10 +29,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/")
 @RequiredArgsConstructor
+@Tag(name = "홈/유저 프로필 API", description = "홈 페이지 및 현재 로그인한 유저 정보 조회 API")
 public class HomeController {
 
     private final UserRepository userRepository;
     private final Logger logger = LoggerFactory.getLogger(HomeController.class);
+
+
     @Hidden
     @GetMapping("/")
     public String home() {
@@ -52,7 +56,6 @@ public class HomeController {
                 "                                                                                          \n" +
                 "</pre>";
     }
-
 
 
     /**
