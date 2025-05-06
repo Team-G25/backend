@@ -13,4 +13,4 @@ import lombok.Setter;
 public class RefineRequest {
     @Schema(description = "AI가 교정할 메일 원본 내용", example = "교수님 안녕하세요, 과제 제출이 늦어 죄송합니다.")
     private String content;
-}ㅎ
+}
