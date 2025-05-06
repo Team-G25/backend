@@ -57,7 +57,7 @@ public class EmailService {
      *  -> [Gmail] MimeMessageHelper 직접 만들던 부분을 분리
      */
     private Mail buildBasicMail(String to, String title, String content, String from) {
-        Email fromEmail = new Email(from != null ? from : "no-reply@mailer.com");
+        Email fromEmail = new Email(from != null ? from : "unknown-user@mailergo.io.kr");
         Email toEmail = new Email(to);
         Content mailContent = new Content("text/plain", content);
         return new Mail(fromEmail, title, toEmail, mailContent);
