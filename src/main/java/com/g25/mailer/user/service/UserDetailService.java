@@ -17,6 +17,11 @@ public class UserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    public boolean checkEmailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+
     //사용자이름 == 이메일로 정보가져오는 메서드
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

@@ -1,6 +1,7 @@
 package com.g25.mailer.user.controller;
 
 import com.g25.mailer.user.dto.*;
+import com.g25.mailer.user.service.UserDetailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final UserDetailService userDetailService;
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "회원가입 요청을 처리합니다.")
@@ -146,6 +148,18 @@ public class UserController {
 
         return ResponseEntity.ok(userService.changePassword(userId, request.getNewPassword()));
     }
+
+
+    @GetMapping("/check-email")
+    @Operation(summary = "회원가입 여부 확인", description = "이메일로 회원가입 여부만 체크합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "가입 여부 조회 성공")
+    })
+    public ResponseEntity<CommonResponse<Boolean>> checkEmailExists(@RequestParam String email) {
+        boolean exists = userDetailService.checkEmailExists(email);
+        return ResponseEntity.ok(CommonResponse.success(exists));
+    }
+
 
 
 }
