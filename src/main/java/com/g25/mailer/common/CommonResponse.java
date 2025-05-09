@@ -21,12 +21,15 @@ public class CommonResponse<T>  {
 
 
     public CommonResponse(ReturnCode returnCode, T info) {
-        this.returnCode = returnCode.getCode();
-        this.returnMessage = returnCode.getText();
+        this.returnCode = (returnCode != null) ? returnCode.getCode() : "UNKNOWN";
+        this.returnMessage = (returnCode != null) ? returnCode.getText() : "Unknown error";
         this.info = info;
     }
 
     public static <T> CommonResponse<T> of(ReturnCode returnCode, T info) {
+        if (returnCode == null) {
+            returnCode = ReturnCode.UNKNOWN_ERROR;
+        }
         return new CommonResponse<>(returnCode, info);
     }
 
