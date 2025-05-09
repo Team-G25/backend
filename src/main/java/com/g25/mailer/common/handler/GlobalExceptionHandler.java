@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -19,7 +20,6 @@ public class GlobalExceptionHandler {
 
     /**
      * SendGridEmailException 처리 메서드
-     *
      * 이 메서드는 SendGrid 메일 전송 중 발생한 예외를 잡아
      * 표준화된 에러 응답으로 클라이언트에 반환.
      * - 고유 traceId를 생성해 로그와 응답에 포함
@@ -61,11 +61,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonResponse<ErrorInfo>> handleGeneralException(Exception ex) {
         String traceId = UUID.randomUUID().toString();
 
-        log.error("[traceId: {}] Unhandled Exception 발생: {}", traceId, ex.getMessage(), ex);
+        String exceptionName = (ex != null) ? ex.getClass().getSimpleName() : "UnknownException";
+        String errorMessage = (ex != null && ex.getMessage() != null) ? ex.getMessage() : "예외 메시지 없음";
+
+        if(ex != null) {
+            log.error("[traceId: {}] Unhandled Exception 발생: {}", traceId, ex.getMessage(), ex);
+        } else {
+            log.error("[traceId: {}] Unhandled Exception 발생: null", traceId);
+        }
 
         ErrorInfo errorInfo = ErrorInfo.builder()
-                .exception(ex.getClass().getSimpleName())
-                .errorMessage(ex.getMessage())
+                .exception(exceptionName)
+                .errorMessage(errorMessage)
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .traceId(traceId)
                 .build();
