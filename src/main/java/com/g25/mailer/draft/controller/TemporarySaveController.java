@@ -30,7 +30,8 @@ public class TemporarySaveController {
 
 
     /**
-     * 메일작성
+     * 임시메일 저장
+     *
      * @param request
      * @return
      */
@@ -38,13 +39,8 @@ public class TemporarySaveController {
     @PostMapping("/write")
     public ResponseEntity<TemporarySaveResponse> createTemporarySave(@RequestBody TemporarySaveRequest request) {
         log.info("임시 저장 content = {}", request.getContent());
-        User user = userService.getUserByEmail(request.getEmail());
-        TemporarySave temporarySave = TemporarySave.builder()
-                .content(request.getContent())
-                .user(user)
-                .build();
 
-        TemporarySaveResponse response = temporarySaveService.saveTemporary(temporarySave);
+        TemporarySaveResponse response = temporarySaveService.saveTemporary(request);
         return ResponseEntity.ok(response);
     }
 

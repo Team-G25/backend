@@ -8,8 +8,6 @@ import lombok.Setter;
 @Setter
 public class TemporarySaveRequest {
     @NotNull private String email;
-    @NotNull private String content;
-
-
+    @NotNull private ContentObj content;
 
 }
