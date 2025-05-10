@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.g25.mailer.draft.service.TemporarySaveService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,15 @@ import com.g25.mailer.user.service.UserDetailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+
+
+/**
+ * 임시메일 관련 API 컨트롤러
+ *
+ * 주요 변경 사항:
+ * - 임시메일 저장 API의 요청 본문에서 content 필드가
+ * - 기존 String → ContentObj (subject, body, attachments 포함) 로 변경
+ */
 @Tag(name = "임시저장API", description = "임시메일저장, 전체조회, 전체삭제, 단건삭제 기능")
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
@@ -30,12 +41,18 @@ public class TemporarySaveController {
 
 
     /**
-     * 임시메일 저장
+     * 작성한 메일을 임시로 저장합니다.
      *
-     * @param request
-     * @return
+     * @param request 임시메일 저장 요청(email, content)
+     *               -> content 필드 주의: 기존 String → ContentObj 타입로 변경됨
+     * @return 저장된 임시메일 응답
      */
-    @Operation(summary = "임시메일저장", description = "작성한 메일을 임시저장합니다.")
+    @Operation(summary = "임시메일 저장", description = "작성한 메일을 임시로 저장합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "저장 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
     @PostMapping("/write")
     public ResponseEntity<TemporarySaveResponse> createTemporarySave(@RequestBody TemporarySaveRequest request) {
         log.info("임시 저장 content = {}", request.getContent());
@@ -44,14 +61,17 @@ public class TemporarySaveController {
         return ResponseEntity.ok(response);
     }
 
-
     /**
-     * 임시 메일함 전체 조회
-     * @return
+     * 임시메일함에 저장된 모든 메일 목록을 조회합니다.
+     *
+     * @return 임시메일 목록 응답 리스트
      */
-    @Operation(summary = "임시 메일함 전체 조회", description = "임시메일함 목록을 전체조회합니다.")
-    @GetMapping("/list")
-    public ResponseEntity<List<TemporarySaveResponse>> listTemporarySaves() {
+    @Operation(summary = "임시 메일함 전체 조회", description = "임시메일함에 저장된 모든 메일 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "500", description = "서버 오류")
+    })
+    @GetMapping("/list") public ResponseEntity<List<TemporarySaveResponse>> listTemporarySaves() {
         List<TemporarySave> saves = temporarySaveService.listTemporarySaves();
         List<TemporarySaveResponse> response = saves.stream()
                 .map(TemporarySaveResponse::new)
