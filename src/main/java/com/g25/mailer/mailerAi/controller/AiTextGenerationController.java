@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/mailer-ai")
-@Tag(name = "MailerAI", description = "직접 만든 메일러 AI 모델 기반 자동 이메일 생성 API")
+@Tag(name = "Mailer AI", description = "직접 만든 메일러 AI 모델 기반 자동 이메일 생성 API")
 public class AiTextGenerationController {
 
     private final AiTextGeneratorClient aiClient;
@@ -35,7 +35,7 @@ public class AiTextGenerationController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = AiPromptRequest.class),
-                            examples = @ExampleObject(value = "{ \"prompt\": \"부장님께 회의 일정 관련 메일 작성해줘\" }")
+                            examples = @ExampleObject(value = "{ \"prompt\": \"교수님께 성적 정정요청한다고 정중한 메일보내\" }")
                     )
             ),
             responses = {
@@ -45,7 +45,7 @@ public class AiTextGenerationController {
                             content = @Content(
                                     mediaType = "application/json",
                                     schema = @Schema(implementation = AiGeneratedMailResponse.class),
-                                    examples = @ExampleObject(value = "{ \"content\": \"안녕하세요, 회의 일정 관련해서...\" }")
+                                    examples = @ExampleObject(value = "{ \"content\": \"안녕하세요, ...\" }")
                             )
                     ),
                     @ApiResponse(responseCode = "503", description = "메일러 AI 서버 응답 실패")
