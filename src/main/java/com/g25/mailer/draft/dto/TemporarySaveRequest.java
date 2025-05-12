@@ -9,7 +9,7 @@ import lombok.Setter;
  * 임시메일 저장 요청 DTO
  *
  * - content 필드는 기존에 단순 String으로 받던 방식에서
- * - ContentObj (subject, body, attachments를 포함한 객체)로 변경
+ * - ContentObj (subject, body를 포함한 객체)로 변경
  *
  *
  * - 반드시 content를 객체 형태로 전송해야 합니다.

@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  *
  * 주요 변경 사항:
  * - 임시메일 저장 API의 요청 본문에서 content 필드가
- * - 기존 String → ContentObj (subject, body, attachments 포함) 로 변경
+ * - 기존 String → ContentObj (senderIdsubject, body 포함) 로 변경
  */
 @Tag(name = "임시저장API", description = "임시메일저장, 전체조회, 전체삭제, 단건삭제 기능")
 @RestController
@@ -42,12 +42,16 @@ public class TemporarySaveController {
 
     /**
      * 작성한 메일을 임시로 저장합니다.
-     *
-     * @param request 임시메일 저장 요청(email, content)
-     *               -> content 필드 주의: 기존 String → ContentObj 타입로 변경됨
-     * @return 저장된 임시메일 응답
      */
-    @Operation(summary = "임시메일 저장", description = "작성한 메일을 임시로 저장합니다.")
+    @Operation(summary = "임시메일 저장", description = "작성한 메일을 임시로 저장합니다." +
+            "{\n" +
+            "  \"email\": \"1234@mailergo.io.kr\",\n" +
+            "  \"content\": {\n" +
+            "    \"senderId\": \"1234@mailergo.io.kr\", \n" +
+            "    \"subject\": \"임시저장 테스트\",\n" +
+            "    \"body\": \"현재 작성 중인 메일입니다.\"\n" +
+            "  }\n" +
+            "}\n")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "저장 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청"),

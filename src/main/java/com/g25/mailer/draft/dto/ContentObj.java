@@ -6,12 +6,16 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "메일 내용 객체")
+@Schema(description = "메일 내용 객체 (발신자 주소 추가) 입니다. 첨부파일은 불가합니다")
 public class ContentObj {
-    @Schema(description = "메일 제목", example = "테스트 제목", required = true)
+
+    @Schema(description = "발신자 이메일", example = "발신자@mailergo.io.kr", required = true)
+    private String senderId;
+
+    @Schema(description = "메일 제목", example = "이메일 제목", required = true)
     private String subject;
 
-    @Schema(description = "메일 본문 내용", example = "테스트 본문 내용입니다.", required = true)
+    @Schema(description = "메일 내용", example = "이메일 본문 내용", required = true)
     private String body;
 
 }

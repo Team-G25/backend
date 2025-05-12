@@ -30,7 +30,12 @@ public class UserController {
     private final UserDetailService userDetailService;
 
     @PostMapping("/signup")
-    @Operation(summary = "회원가입", description = "회원가입 요청을 처리합니다.")
+    @Operation(summary = "회원가입", description = "회원가입 요청을 처리합니다." +
+            "{\n" +
+            "  \"nickname\": \"admin\",\n" +
+            "  \"email\": \"1234@mailergo.io.kr\",\n" +
+            "  \"password\": \"1234\"\n" +
+            "}\n ")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "회원가입 성공"),
             @ApiResponse(responseCode = "400", description = "잘못된 요청")

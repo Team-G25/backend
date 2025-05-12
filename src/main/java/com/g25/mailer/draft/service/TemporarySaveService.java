@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+import static com.g25.mailer.common.util.DomainUtils.domainChangeId;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -23,26 +25,29 @@ public class TemporarySaveService {
 
     private final TemporarySaveRepository temporarySaveRepository;
     private final UserRepository userRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper(); //ContentObj → JSON 문자열
+    private final ObjectMapper objectMapper = new ObjectMapper(); //ContentObj → JSON 문자열 파싱
 
 
-    // 임시저장 생성/저장
+    //임시저장 생성 및 저정
     public TemporarySaveResponse saveTemporary(TemporarySaveRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("해당 유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("없는 유저입니다"));
+
+        ContentObj contentObj = request.getContent();
+        contentObj.setSenderId(domainChangeId(contentObj.getSenderId())); // 유틸메서드 적용
 
         String jsonContent;
         try {
-            ContentObj contentObj = request.getContent();
+
             jsonContent = objectMapper.writeValueAsString(contentObj);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Content 변환 실패", e);
+            throw new RuntimeException("content 변환 실패", e);
         }
 
         Optional<TemporarySave> existingSaveOpt = temporarySaveRepository.findByUserAndContent(
                 user, jsonContent);
         if (existingSaveOpt.isPresent()) {
-            throw new IllegalStateException("이미 동일한 내용이 저장되어 있습니다.");
+            throw new IllegalStateException("이미 작성한 메일입니다 새로운 내용만 가능합니다.");
         }
 
         TemporarySave temporarySave = TemporarySave.builder()
@@ -51,32 +56,30 @@ public class TemporarySaveService {
                 .build();
 
         TemporarySave saved = temporarySaveRepository.save(temporarySave);
-        return TemporarySaveResponse.of(saved);
+        return new TemporarySaveResponse(saved.getId(), contentObj, saved.getSavedAt());
     }
 
-
-    // id로 단일 임시저장 조회
     @Transactional(readOnly = true)
     public TemporarySave getTemporarySave(Long id) {
         return temporarySaveRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 임시저장 데이터가 존재하지 않습니다."));
     }
 
-
-    // 모든 임시저장 목록 조회
     @Transactional(readOnly = true)
     public List<TemporarySave> listTemporarySaves() {
         return temporarySaveRepository.findAll();
     }
 
 
-    // 모든 임시저장 삭제
     public void deleteAllTemporarySaves() {
         temporarySaveRepository.deleteAll();
     }
 
-    // 단일 임시저장 삭제
     public void deleteSingleTemp(Long id) {
         temporarySaveRepository.deleteById(id);
     }
+
+
+
+
 }
