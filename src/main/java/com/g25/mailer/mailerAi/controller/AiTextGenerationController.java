@@ -30,12 +30,12 @@ public class AiTextGenerationController {
 
     @Operation(
             summary = "메일러 AI 메일 자동 생성",
-            description = "메일러 AI 서버와 통신하여 메일을 생성합니다.",
+            description = "메일러 AI 서버와 통신하여 메일을 생성합니다.문의하기로 테스트해야합니다.",
             requestBody = @RequestBody(
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = AiPromptRequest.class),
-                            examples = @ExampleObject(value = "{ \"prompt\": \"교수님께 성적 정정요청한다고 정중한 메일보내\" }")
+                            examples = @ExampleObject(value = "{ \"prompt\": \"교수님께 성적 정정요청 문의하기\" }")
                     )
             ),
             responses = {
