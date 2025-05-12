@@ -1,6 +1,7 @@
 package com.g25.mailer.user.controller;
 
 import com.g25.mailer.user.dto.*;
+import com.g25.mailer.user.entity.User;
 import com.g25.mailer.user.service.UserDetailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -23,7 +24,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/member")
-@Tag(name = "회원 API", description = "회원가입, 로그인, 로그아웃, 프로필 설정, 비밀번호 변경 등 회원 관련 API")
+@Tag(name = "회원 API", description = "회원가입, 로그인, 로그아웃, 프로필 설정, 비밀번호 변경, 로그인한 유저정보조회 등회원 관련 API(수정됨) ")
 public class UserController {
 
     private final UserService userService;
@@ -163,6 +164,31 @@ public class UserController {
     public ResponseEntity<CommonResponse<Boolean>> checkEmailExists(@RequestParam String email) {
         boolean exists = userDetailService.checkEmailExists(email);
         return ResponseEntity.ok(CommonResponse.success(exists));
+    }
+
+    @GetMapping("/now-me")
+    @Operation(summary = "현재 로그인한 유저 조회. 이메일작성페이지 수신자란에 사용", description = "새션에서 userId(PK)를 얻어서 유저 정보를 리턴합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "401", description = "로그인한 유저가 없습니다.")
+    })
+    public ResponseEntity<CommonResponse<Map<String, Object>>> getCurrentUserInfo(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(CommonResponse.fail(Map.of("error", "로그인이 필요합니다.")));
+        }
+
+        User user = userDetailService.getUserById(userId);
+
+        Map<String, Object> result = Map.of(
+                "userId", user.getId(),
+                "nickname", user.getNickname(),
+                "email", user.getEmail()
+        );
+
+        return ResponseEntity.ok(CommonResponse.success(result));
     }
 
 

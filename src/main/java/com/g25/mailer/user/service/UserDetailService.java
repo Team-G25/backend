@@ -8,9 +8,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-/**
- * 스프링 시큐리티에서 사용자 정보 가져옴
- */
 @RequiredArgsConstructor
 @Service
 public class UserDetailService implements UserDetailsService {
@@ -36,16 +33,15 @@ public class UserDetailService implements UserDetailsService {
 
     }
 
-
-    //이메일받고 유저객체 리턴
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email + "는 존재하지 않는 계정입니다."));
     }
 
 
-
-
-
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException(userId + "는 로그인하지 않았거나 존재하지 않는 사용자입니다"));
+    }
 }
 

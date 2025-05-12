@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Getter
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
@@ -40,4 +42,9 @@ public class CommonResponse<T>  {
     public static <T> CommonResponse<T> fail(T info) {
         return new CommonResponse<>(ReturnCode.UNKNOWN_ERROR, info);
     }
+
+    public static CommonResponse<Map<String, Object>> failMessage(String message) {
+        return new CommonResponse<>(ReturnCode.UNKNOWN_ERROR, Map.of("error", message));
+    }
+
 }
