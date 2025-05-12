@@ -13,6 +13,6 @@ import lombok.Setter;
 @Schema(description = "AI가 생성한 메일 응답 DTO")
 public class AiGeneratedMailResponse {
 
-    @Schema(description = "메일러 AI가 생성한 이메일 본문 내용", example = "안녕하세요, 회의 일정 관련하여 메일드립니다...")
+    @Schema(description = "메일러 AI가 생성한 이메일 본문 내용", example = "메일러 AI가 생성한 메일이 뜨거나 실패하거나 둘중 하나 ")
     private String content;
 }
