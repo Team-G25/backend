@@ -1,4 +1,4 @@
-package com.g25.mailer.aiMail.dto;
+package com.g25.mailer.gptAi.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

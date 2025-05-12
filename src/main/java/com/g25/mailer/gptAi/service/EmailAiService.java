@@ -1,7 +1,7 @@
-package com.g25.mailer.aiMail.service;
+package com.g25.mailer.gptAi.service;
 
-import com.g25.mailer.aiMail.dto.GptResponse;
-import com.g25.mailer.aiMail.gpt.GptClient;
+import com.g25.mailer.gptAi.dto.GptResponse;
+import com.g25.mailer.gptAi.gpt.GptClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

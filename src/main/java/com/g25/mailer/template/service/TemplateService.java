@@ -1,6 +1,6 @@
 package com.g25.mailer.template.service;
 
-import com.g25.mailer.aiMail.service.EmailAiService;
+import com.g25.mailer.gptAi.service.EmailAiService;
 import com.g25.mailer.email.service.EmailService;
 import com.g25.mailer.template.dto.ConfirmFinalRequest;
 import com.g25.mailer.template.dto.CustomizeTemplateRequest;

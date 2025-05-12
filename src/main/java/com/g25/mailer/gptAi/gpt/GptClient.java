@@ -1,6 +1,6 @@
-package com.g25.mailer.aiMail.gpt;
+package com.g25.mailer.gptAi.gpt;
 
-import com.g25.mailer.aiMail.dto.GptResponse;
+import com.g25.mailer.gptAi.dto.GptResponse;
 import com.g25.mailer.config.GptFeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
