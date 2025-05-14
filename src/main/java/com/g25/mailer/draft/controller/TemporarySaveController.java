@@ -48,7 +48,7 @@ public class TemporarySaveController {
             "  \"email\": \"1234@mailergo.io.kr\",\n" +
             "  \"content\": {\n" +
             "    \"senderId\": \"1234@naver.io.kr\", \n" +
-            "    \"receiverIds\": \"5678@naver.com\",\n" +
+            "    \"receiverId\": \"5678@naver.com\",\n" +
             "    \"subject\": \"임시저장하는 메일제목\",\n" +
             "    \"body\": \"현재 작성 중인 메일입니다.\"\n" +
             "  }\n" +

@@ -24,9 +24,9 @@ public class GptFeignConfig {
 
     @Bean
     public Request.Options options() {
-        return new Request.Options(5000, 10000); // ms
+
+        return new Request.Options(5000, 300000); //5분
     }
-    //Feign의 타임아웃 설정 > 5000 ms (5초) → 연결 타임아웃, 10000 ms (10초) → 응답 대기 타임아웃
 
 
     @Bean
