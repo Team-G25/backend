@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,8 @@ public class AiTextGenerationController {
 //            }
 //    )
     @PostMapping("/auto-generate")
-    public ResponseEntity<AiGeneratedMailResponse> generate(@Valid @RequestBody AiPromptRequest request) {
+    public ResponseEntity<AiGeneratedMailResponse> generate(@Valid @RequestBody AiPromptRequest request, HttpServletRequest httpRequest) {
+        log.info("Request Method: {}", httpRequest.getMethod());
         try {
             return ResponseEntity.ok(aiClient.generate(request));
         } catch (Exception e) {
