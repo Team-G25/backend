@@ -1,9 +1,12 @@
 package com.g25.mailer.user.controller;
 
+import com.g25.mailer.common.ReturnCode;
 import com.g25.mailer.user.dto.*;
 import com.g25.mailer.user.entity.User;
 import com.g25.mailer.user.service.UserDetailService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,19 +34,21 @@ public class UserController {
     private final UserDetailService userDetailService;
 
     @PostMapping("/signup")
-    @Operation(summary = "회원가입", description = "회원가입 요청을 처리합니다." +
-            "{\n" +
-            "  \"nickname\": \"admin\",\n" +
-            "  \"email\": \"1234@mailergo.io.kr\",\n" +
-            "  \"password\": \"1234\"\n" +
-            "}\n ")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "회원가입 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청")
-    })
-    public ResponseEntity<CommonResponse<Map<String, String>>> signup(@Valid @RequestBody AddUserRequest request) {
-        log.info("[확인용] 회원가입 요청 : {}", request);
-        return ResponseEntity.ok(userService.save(request));
+    @Operation(summary = "회원가입", description = "닉네임, 이메일(아이디), 프로필이미지를 저장합니다.")
+    public ResponseEntity<CommonResponse<AddUserResponse>> signup(
+            @Valid @RequestBody AddUserRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        userService.save(request, file);
+        Long userId = userService.getUserIdByEmail(request.getEmail());
+        User user = userDetailService.getUserById(userId);
+        AddUserResponse response = AddUserResponse.builder()
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .profileImageUrl(user.getProfileImageUrl())
+                .build();
+
+        return ResponseEntity.ok(CommonResponse.success(response));
     }
 
 
@@ -82,7 +87,7 @@ public class UserController {
 
 
     /**
-     * TODO : 유저 프로필 사진 업로드 (서버사이드)
+     * 유저 프로필 사진 업로드 (서버사이드) v
      * 클라이언트 사이드
      *  클라이언트쪽에서 s3 URL를 서버로 넘겨준다 -> 서버는 String으로 들어온 URL 를 저장
      *
@@ -92,8 +97,6 @@ public class UserController {
      * 2. 서버가 S3Uploader.uploadProfileImg() 호출
      * 3. 해당 URL을 DB에 저장 (→ service에서 처리)
      */
-
-
     @PostMapping("/setting/img")
     @Operation(summary = "프로필 이미지 업로드", description = "multipart/form-data로 이미지를 업로드하고 S3에 저장합니다.")
     @ApiResponses({
@@ -167,30 +170,30 @@ public class UserController {
     }
 
     @GetMapping("/now-me")
-    @Operation(summary = "현재 로그인한 유저 조회. 이메일작성페이지 수신자란에 사용", description = "새션에서 userId(PK)를 얻어서 유저 정보를 리턴합니다.")
+    @Operation(summary = "현재 로그인한 유저 조회. 이메일작성페이지 수신자 란에 사용", description = "새션에서 userId(PK)를 얻어서 유저 정보를 리턴합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "성공"),
-            @ApiResponse(responseCode = "401", description = "로그인한 유저가 없습니다.")
+            @ApiResponse(responseCode = "401", description = "로그인이 필요합니다.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CommonResponse.class)
+                    )
+            )
     })
-    public ResponseEntity<CommonResponse<Map<String, Object>>> getCurrentUserInfo(HttpSession session) {
+    public ResponseEntity<CommonResponse<AddUserResponse>> getCurrentUserInfo(HttpSession session) {
         Long userId = (Long) session.getAttribute("userId");
-
         if (userId == null) {
             return ResponseEntity.status(401)
-                    .body(CommonResponse.fail(Map.of("error", "로그인이 필요합니다.")));
+                    .body(CommonResponse.fail(ReturnCode.UNAUTHORIZED, null));
         }
-
         User user = userDetailService.getUserById(userId);
-
-        Map<String, Object> result = Map.of(
-                "userId", user.getId(),
-                "nickname", user.getNickname(),
-                "email", user.getEmail()
-        );
-
-        return ResponseEntity.ok(CommonResponse.success(result));
+        AddUserResponse response = AddUserResponse.builder()
+                .userId(user.getId())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .profileImageUrl(user.getProfileImageUrl())
+                .build();
+        return ResponseEntity.ok(CommonResponse.success(response));
     }
-
-
 
 }

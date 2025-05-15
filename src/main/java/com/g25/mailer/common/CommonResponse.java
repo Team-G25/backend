@@ -43,8 +43,8 @@ public class CommonResponse<T>  {
         return new CommonResponse<>(ReturnCode.UNKNOWN_ERROR, info);
     }
 
-    public static CommonResponse<Map<String, Object>> failMessage(String message) {
-        return new CommonResponse<>(ReturnCode.UNKNOWN_ERROR, Map.of("error", message));
+    public static <T> CommonResponse<T> fail(ReturnCode returnCode, T info) {
+        return new CommonResponse<>(returnCode, info);
     }
 
 }

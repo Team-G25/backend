@@ -39,22 +39,26 @@ public class UserService {
 
     /**
      * 회원가입, 회원가입 후 나중에 유저가 프로필 이미지 등록하도록 한다.
+     *
      * @param request
+     * @param file
      * @return
      */
-    public CommonResponse<Map<String, String>> save(AddUserRequest request) {
-        User user = userRepository.save(User.builder()
+    public User save(AddUserRequest request, MultipartFile file) {
+        User user = User.builder()
                 .nickname(request.getNickname())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .theme(User.Theme.LIGHT)
-                .build());
+                .build();
 
-        Map<String, String> responseData = new HashMap<>();
-        responseData.put("nickname", user.getNickname());
-        responseData.put("email", user.getEmail());
+        if (file != null && !file.isEmpty()) {
+            String fileKey = s3Uploader.uploadProfileImg(file);
+            String imageUrl = "https://" + bucket + ".s3.amazonaws.com/" + fileKey;
+            user.setProfileImageUrl(imageUrl);
+        }
 
-        return CommonResponse.success(responseData);
+        return userRepository.save(user);
     }
 
     /**
