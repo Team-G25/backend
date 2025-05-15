@@ -23,13 +23,6 @@ public class GptFeignConfig {
     //Feign의 로그 레벨 설정 >  FULL : 요청 메서드, URL, 헤더, 바디까지 모두 출력
 
     @Bean
-    public Request.Options options() {
-
-        return new Request.Options(5000, 300000); //5분
-    }
-
-
-    @Bean
     public Decoder feignDecoder(ObjectMapper objectMapper) {
         return (response, type) -> {
             if (response.body() == null) {
