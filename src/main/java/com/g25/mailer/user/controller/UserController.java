@@ -181,12 +181,19 @@ public class UserController {
             )
     })
     public ResponseEntity<CommonResponse<AddUserResponse>> getCurrentUserInfo(HttpSession session) {
+        log.info(">> [now-me] 요청 진입");
+
         Long userId = (Long) session.getAttribute("userId");
+
+        log.info(">> [now-me] 세션 userId: {}", userId);
         if (userId == null) {
             return ResponseEntity.status(401)
                     .body(CommonResponse.fail(ReturnCode.UNAUTHORIZED, null));
         }
+
+        long start = System.currentTimeMillis();
         User user = userDetailService.getUserById(userId);
+        log.info("userDetailService.getUserById() took {} ms", System.currentTimeMillis() - start);
         AddUserResponse response = AddUserResponse.builder()
                 .userId(user.getId())
                 .nickname(user.getNickname())
